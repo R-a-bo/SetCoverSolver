@@ -1,6 +1,13 @@
-"""TODO: document"""
+""" approximations.py
+    --> implements a variety of approximation algorithms for set cover
+    --> eventually I will make this a class so we can call from elsewhere"""
 
 import pulp      # you will need to pip install pulp :)
+
+# TODO:
+#   double check with Chris to make sure my understanding of f is correct.
+#   dual rounding solution
+#   randomized algorithm?
 
 # Book notes:
 
@@ -14,7 +21,6 @@ import pulp      # you will need to pip install pulp :)
 
 # approx method 3: greedy approx. A ln(n) approximation
 
-# this looks helpful: http://math.mit.edu/~goemans/18434S06/setcover-tamara.pdf
 # curious about this other greedy method: https://arxiv.org/pdf/1506.04220.pdf
 
 def integer_program(universe, subsets, weights):
@@ -39,7 +45,7 @@ def integer_program(universe, subsets, weights):
     for element in universe:
         integer_program += sum([x[subset] for subset in subsets if element in subset]) >= 1
 
-    # print(integer_program)
+    #print(integer_program)
 
     integer_program.solve()
 
@@ -48,6 +54,45 @@ def integer_program(universe, subsets, weights):
 
     return cover
 
+def deterministic_rounding(universe, subsets, weights):
+    """ Linear programming with deterministic rounding. """
+
+    subsets = [tuple(s) for s in subsets]
+
+    # create (continouous) decision variables
+    x = pulp.LpVariable.dicts('s', subsets, lowBound=0, cat='Continuous')
+
+    # create the integer program
+    linear_program = pulp.LpProblem("Set Cover Deterministic Rounding", pulp.LpMinimize)
+
+    # add the objective function
+    linear_program += sum([weights[s] * x[subsets[s]] for s in range(len(subsets))])
+
+    # add the constraints
+    for element in universe:
+        linear_program += sum([x[subset] for subset in subsets if element in subset]) >= 1
+
+    #print(linear_program)
+
+    linear_program.solve()
+
+    # create the cover using deterministic rounding
+    cover = []
+    f_i_vals = []
+    for element in universe:
+        f_i = 0
+        for subset in subsets:
+            if element in subset:
+                f_i += 1
+        f_i_vals.append(f_i)
+    f = max(f_i_vals)
+
+    #for subset in x:
+        #print(x[subset].value())
+
+    cover = [set(subset) for subset in subsets if x[subset].value() >= 1/f]
+
+    return cover
 
 def greedy_unweighted(universe, subsets):
     """ Here is an implementation of a greedy approximation for unweighted SC
@@ -104,25 +149,34 @@ def greedy_weighted(universe, subsets, weights):
     return cover
 
 def main():
-    universe = set(range(1, 11))
+    """universe = set(range(1, 11))
     subsets = [set([1, 2, 3, 8, 9, 10]),
         set([1, 2, 3, 4, 5]),
         set([4, 5, 7]),
         set([5, 6, 7]),
         set([6, 7, 8, 9, 10])]
+    weights = [1,1,1,1,1]"""
 
-    weights = [1,1,1,1,1]   # with this, the weighted and unweighted algs get the same value, as they should
+    # one of daniel's random graphs:
+    """universe = {4, 70, 8, 41, 12, 77, 44, 21, 53, 87}
+    subsets = [{70, 41, 12, 77, 44, 21, 87}, {70, 8, 44, 77, 53, 87}, {41, 12}, {4, 70, 8, 41, 12, 44, 53, 87}]
+    weights = [1,1,1,1]"""
 
-    greedy_unweighted_cover = greedy_unweighted(universe, subsets)
+    # example where IP and LP are different. Results of LP are as expected.
+    # (source: http://math.mit.edu/~goemans/18434S06/setcover-tamara.pdf)
+    universe = {1, 2, 3, 4, 5, 6}
+    subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
+    weights = [1,1,1,1,1,1,1]
+
+    #greedy_unweighted_cover = greedy_unweighted(universe, subsets)
     greedy_weighted_cover = greedy_weighted(universe, subsets, weights)
     integer_program_cover = integer_program(universe, subsets, weights)
+    deterministic_rounding_cover = deterministic_rounding(universe, subsets, weights)
 
-    #cover2 = greedy_unweighted_set_cover({4, 70, 8, 41, 12, 77, 44, 21, 53, 87}, [{70, 41, 12, 77, 44, 21, 87}, {70, 8, 44, 77, 53, 87}, {41, 12}, {4, 70, 8, 41, 12, 44, 53, 87}])
-
-
-    print(greedy_unweighted_cover)
-    print(greedy_weighted_cover)
-    print(integer_program_cover)
+    #print("greedy_unweighted_cover:", greedy_unweighted_cover)
+    print("integer program (exact soln):", integer_program_cover)
+    print("greedy algorithm:            ", greedy_weighted_cover)
+    print("deterministic LP rounding:   ", deterministic_rounding_cover)
 
 if __name__ == '__main__':
     main()

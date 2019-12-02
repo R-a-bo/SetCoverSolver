@@ -202,10 +202,16 @@ class Dataset:
 		
 		return instance
 
+	'''
+	----------------------------------------------	
 	def create_instances(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
 			technique that leads to the smallest set cover."""
 		pass
+	----------------------------------------------
+	NOTE: Commenting this out because we should run the algorithms outside of this class, 
+	and simply apply the labels here, or choose the best label here? still thinking about it.
+	'''
 
 def main():
 	

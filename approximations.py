@@ -10,20 +10,25 @@ import pulp      # you will need to pip install pulp :)
 # curious about this other greedy method: https://arxiv.org/pdf/1506.04220.pdf
 
 class Approximations:
-    def __init__(self, universe, subsets, weights):
+    def __init__(self, universe, subset_tuples):
         self.universe = universe
-        self.subsets = subsets
-        self.weights = weights
+        self.subset_tuples = subset_tuples
+        #self.subsets = subsets
+        #self.weights = weights
 
     def valid(self):
-        elements = set(e for s in self.subsets for e in s)
+        #elements = set(e for s in self.subset_tuples for e in s)
+        elements = set()
+        for subset in self.subset_tuples:
+            for element in subset[0]:
+                elements.add(element)
         # Check the subsets cover the universe
         return elements == self.universe
 
     def cost(self, cover):
         cover_cost = 0
-        for subset in cover:
-            cover_cost += self.weights[self.subsets.index(subset)]
+        for subset_tuple in cover:
+            cover_cost += subset_tuple[1] #self.weights[self.subsets.index(subset)]
         return cover_cost
 
     def integer_program(self):
@@ -32,7 +37,8 @@ class Approximations:
             Help from: https://pythonhosted.org/PuLP/CaseStudies/a_set_partitioning_problem.html"""
 
         # subsets need to be tuples for this to work
-        subsets = [tuple(s) for s in self.subsets]
+        subsets = [tuple(s[0]) for s in self.subset_tuples]
+        #print(subsets)
         #print(subsets)
 
         # create decision variables
@@ -42,7 +48,7 @@ class Approximations:
         integer_program = pulp.LpProblem("Set Cover Integer Programming", pulp.LpMinimize)
 
         # add the objective function
-        integer_program += sum([self.weights[s] * x[subsets[s]] for s in range(len(subsets))])
+        integer_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
 
         # add the constraints
         for element in self.universe:
@@ -53,14 +59,16 @@ class Approximations:
         integer_program.solve()
 
         # create the cover based on results of IP
-        cover = [set(subset) for subset in subsets if x[subset].value() == 1.0]
+        #cover = [set(subset) for subset in self.subset_tuples if x[self.subset_tuples[0]].value() == 1.0]
+        cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
+                if x[tuple(self.subset_tuples[i][0])].value() == 1.0]
 
         return cover, self.cost(cover)
 
     def deterministic_rounding(self):
         """ Linear programming with deterministic rounding. """
 
-        subsets = [tuple(s) for s in self.subsets]
+        subsets = [tuple(s[0]) for s in self.subset_tuples]
 
         # create (continouous) decision variables
         x = pulp.LpVariable.dicts('s', subsets, lowBound=0, cat='Continuous')
@@ -69,7 +77,7 @@ class Approximations:
         linear_program = pulp.LpProblem("Set Cover Deterministic Rounding", pulp.LpMinimize)
 
         # add the objective function
-        linear_program += sum([self.weights[s] * x[subsets[s]] for s in range(len(subsets))])
+        linear_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
 
         # add the constraints
         for element in self.universe:
@@ -82,8 +90,8 @@ class Approximations:
         f_i_vals = []
         for element in self.universe:
             f_i = 0
-            for subset in subsets:
-                if element in subset:
+            for subset in self.subset_tuples:
+                if element in subset[0]:
                     f_i += 1
             f_i_vals.append(f_i)
         f = max(f_i_vals)
@@ -91,7 +99,9 @@ class Approximations:
         #for subset in x:
             #print(x[subset].value())
 
-        cover = [set(subset) for subset in subsets if x[subset].value() >= 1/f]
+        #cover = [set(subset) for subset in subsets if x[subset].value() >= 1/f]
+        cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
+                if x[tuple(self.subset_tuples[i][0])].value() >= 1/f]
 
         return cover, self.cost(cover)
 
@@ -100,6 +110,8 @@ class Approximations:
         pass
 
     def greedy_unweighted(self):
+        """this is going to error now, don't use. just here for reference."""
+
         """ Here is an implementation of a greedy approximation for unweighted SC
             SOURCE: http://www.martinbroadhurst.com/greedy-set-cover-in-python.html"""
 
@@ -116,24 +128,26 @@ class Approximations:
     def greedy_weighted(self):
         """My edits of greedy unweighted to make it weighted"""
 
-        maximum = max(self.weights)+1
+        #maximum = max(self.weights)+1
+        print([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))])
+        maximum = max([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))]) + 1
 
         covered = set()
         cover = []
         # Greedily add the subsets with the most uncovered points
         while covered != self.universe:
             min_value = maximum      # so that we always know this value will be bigger than every min_value
-            min_subset = self.subsets[0]
-            for i in range(len(self.subsets)):
-                if len(self.subsets[i] - covered) > 0:       # avoiding division by zero errors
-                    value = self.weights[i]/len(self.subsets[i] - covered)
+            min_subset = self.subset_tuples[0][0]
+            for i in range(len(self.subset_tuples)):
+                if len(self.subset_tuples[i][0] - covered) > 0:       # avoiding division by zero errors
+                    value = self.subset_tuples[i][1]/len(self.subset_tuples[i][0] - covered)
                     if value < min_value:
                         min_value = value
-                        min_subset = self.subsets[i]
+                        min_subset = self.subset_tuples[i]
 
             cover.append(min_subset)
             #print("subset:",min_subset)
-            covered |= min_subset  # this apparently means covered = covered | subset
+            covered |= min_subset[0]  # this apparently means covered = covered | subset
             #print("covered:", covered)
 
         return cover, self.cost(cover)
@@ -157,9 +171,11 @@ def main():
     universe = {1, 2, 3, 4, 5, 6}
     subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
     weights = [1,1,1,1,1,1,1]
+    subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
+    print(subset_tuples)
 
     #greedy_unweighted_cover = greedy_unweighted(universe, subsets)
-    solns = Approximations(universe, subsets, weights)
+    solns = Approximations(universe, subset_tuples)
     if solns.valid():
         greedy_weighted_cover = solns.greedy_weighted()
         integer_program_cover = solns.integer_program()
@@ -168,6 +184,11 @@ def main():
         print("integer program (exact soln):", integer_program_cover)
         print("greedy algorithm:            ", greedy_weighted_cover)
         print("deterministic LP rounding:   ", deterministic_rounding_cover)
+
+        #should be:
+        #integer program (exact soln): ([{1, 3}, {2, 3}, {4, 5, 6}], 3)
+        #greedy algorithm:             ([{2, 4, 6}, {1, 3}, {3, 5, 6}], 3)
+        #deterministic LP rounding:    ([{1, 2}, {1, 3}, {2, 3}, {4, 5, 6}], 4)
     else:
         print("sets can't cover the universe!")
 

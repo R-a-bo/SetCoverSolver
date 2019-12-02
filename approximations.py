@@ -9,7 +9,7 @@ import pulp      # you will need to pip install pulp :)
 
 # curious about this other greedy method: https://arxiv.org/pdf/1506.04220.pdf
 
-class SetCoverSolutions:
+class Approximations:
     def __init__(self, universe, subsets, weights):
         self.universe = universe
         self.subsets = subsets
@@ -159,7 +159,7 @@ def main():
     weights = [1,1,1,1,1,1,1]
 
     #greedy_unweighted_cover = greedy_unweighted(universe, subsets)
-    solns = SetCoverSolutions(universe, subsets, weights)
+    solns = Approximations(universe, subsets, weights)
     if solns.valid():
         greedy_weighted_cover = solns.greedy_weighted()
         integer_program_cover = solns.integer_program()

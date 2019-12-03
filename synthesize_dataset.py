@@ -6,11 +6,23 @@ import random
 from approximations import Approximations
 
 class Instance(object):
-	def __init__(self, union, subsets):
+	def __init__(self, union, subsets, name=None, weighted=False):
+
+		# Main features
+		self.name = name
 		self.union = list(union)
 		self.subsets = subsets
+
+		# Separate access to subsets and weights, indices are the same in both lists
 		self.sets = [tup[0] for tup in subsets]
 		self.weights = [tup[1] for tup in subsets]
+
+		# Indicates whether the instance is weighted or not
+		self.is_weighted = weighted
+
+		# To add!
+		self.graph = None
+		self.label = None
 
 class Dataset:
 	def __init__(self):
@@ -173,18 +185,25 @@ class Dataset:
 			print("Wrong filename/unable to preprocess file")
 			sys.exit(1)
 
+		# Make name for instance
+		t_name = f_name.split("/")
+		inst_name = t_name[-1].replace(".txt", "").replace(".msc", "")
+
 		# Read and add to the instances
 		if "frb" in f_name:
 			union, subsets = self.nonweighted_preprocess(f_name)
-		elif "scp" in f_name:
+			instance = Instance(union, subsets, name=inst_name)
+		else: #if "scp" in f_name:
 			union, subsets = self.weighted_preprocess(f_name)
+			instance = Instance(union, subsets, name=inst_name, weighted=True)
 
 		# Create a new instance object and append it to the list of instances
-		instance = Instance(union, subsets)
 		self.instances.append(instance)
 
 		return instance
 
+	'''
+	----------------------------------------------
 	def create_instances(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
 			technique that leads to the smallest set cover."""
@@ -201,14 +220,15 @@ class Dataset:
 			self.mlinstances.append([label, sc]) # this will actually be a graph
 
 def main():
+
+	dset = Dataset()
+
+	# Test generation
 	n = 100 # upper bound for range of numbers
 	m = 10  # size of set
 	l = 5   # size of list of subsets
 	w = 10
 
-	dset = Dataset()
-
-	# Test generation
 	generated_instance = dset.generate_instance(n, m, l, w)
 	print()
 	print("=================================")
@@ -226,9 +246,10 @@ def main():
 	weighted_instance = dset.read(weighted_fname)
 	unweighted_instance = dset.read(unweighted_fname)
 
-
 	print()
 	print("=================================")
+	print("Weighted name:")
+	print(weighted_instance.name)
 	print("Weighted union:")
 	print(weighted_instance.union[:10])
 	print("Weighted subsets:")
@@ -236,6 +257,8 @@ def main():
 
 	print()
 	print("=================================")
+	print("Un-weighted name:")
+	print(unweighted_instance.name)
 	print("Un-weighted union:")
 	print(unweighted_instance.union[:10])
 	print("Un-weighted subsets")

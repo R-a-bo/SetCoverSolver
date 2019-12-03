@@ -110,26 +110,24 @@ class Dataset:
 		# Read data and split lines
 		# fname = "data/scp/scp43.txt"
 		scp = open(fname, 'r')
-		scp_txt = scp.read()
-		scp_lines = scp_txt.split('\n')
+		scp = scp.read()
+		lines = scp.split('\n')
 
-		# Separate different blocks of information
-		scp_meta = scp_lines[0]
-		scp_weights = scp_lines[1:85]
-		scp_els = scp_lines[85:]
+		# Separate each of the lines and create a list of numbers
+		parsed_lines = [el.strip().split() for el in lines]
+		parsed_lines = [int(el) for subset in parsed_lines for el in subset]
 
 		# For the matrix form, get the number of rows and columns
-		num_rows = int(scp_meta.split()[0])
-		num_cols = int(scp_meta.split()[1])
+		num_rows = int(parsed_lines[0])
+		num_cols = int(parsed_lines[1])
+
+		# Separate different blocks of information
+		scp_meta = lines[0]
+		weights = parsed_lines[2:2 + num_cols]
+		elements = parsed_lines[2 + num_cols:]
 
 		# Get weights for each column, where element i is the weight for column i
-		weights = [el.strip().split() for el in scp_weights]
-		weights = [int(el) for w_list in weights for el in w_list]
 		weight_map = dict(zip(range(1, num_cols + 1), weights))
-
-		# Get the column indices as a list of numbers
-		parsed_els = [el.strip().split() for el in scp_els]
-		parsed_els = [int(el) for subset in parsed_els for el in subset]
 
 		# Build the row cover map with structure {row i: [columns that cover row i]}
 		row_cover = {}
@@ -138,7 +136,7 @@ class Dataset:
 		union = set(range(1, num_rows + 1))
 
 		# The first element of the parsed numbers
-		col_count = parsed_els[0]
+		col_count = elements[0]
 
 		# Start at the second element of parsed numbers to add columns
 		col_idx = 1
@@ -146,16 +144,16 @@ class Dataset:
 		# Build the row_cover dictionary
 		for row_idx in range(1, num_rows + 1):
 			# Add column indices that cover row i
-			row_cover[row_idx] = parsed_els[col_idx:col_idx + col_count - 1]
+			row_cover[row_idx] = elements[col_idx:col_idx + col_count - 1]
 
 			# Move the column index to the next number representing number of columns
 			col_idx += col_count
 
 			# Only keep going until we don't have any columns left!
-			if col_idx < len(parsed_els):
+			if col_idx < len(elements):
 
 				# Get the number of columns that we are about to read
-				col_count = parsed_els[col_idx]
+				col_count = elements[col_idx]
 
 				# Make sure to start a number after the number of columns
 				col_idx += 1
@@ -240,7 +238,7 @@ def main():
 
 
 	# Test reading files
-	weighted_fname = "data/scp/scp43.txt"
+	weighted_fname = "data/scp/scpd1.txt"
 	unweighted_fname = "data/frb/frb30-15-msc/frb30-15-1.msc"
 
 	weighted_instance = dset.read(weighted_fname)

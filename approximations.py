@@ -22,6 +22,7 @@ class Approximations:
         for subset in self.subset_tuples:
             for element in subset[0]:
                 elements.add(element)
+        #print(list(elements)[:10], list(self.universe)[:10])
         # Check the subsets cover the universe
         return elements == self.universe
 
@@ -129,7 +130,7 @@ class Approximations:
         """My edits of greedy unweighted to make it weighted"""
 
         #maximum = max(self.weights)+1
-        print([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))])
+        #print([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))])
         maximum = max([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))]) + 1
 
         covered = set()
@@ -151,6 +152,19 @@ class Approximations:
             #print("covered:", covered)
 
         return cover, self.cost(cover)
+
+    def best(self):
+        """runs each approximation algorithm and returns the one that does best"""
+
+        costs = []
+        labels = ["greedy", "deterministic rounding"]
+        costs.append(self.greedy_weighted()[1])
+        costs.append(self.deterministic_rounding()[1])
+        # add more here once we implement them...
+        index_min = min(range(len(costs)), key=costs.__getitem__)
+        print("costs:", costs)
+
+        return labels[index_min]
 
 def main():
     """universe = set(range(1, 11))
@@ -184,6 +198,8 @@ def main():
         print("integer program (exact soln):", integer_program_cover)
         print("greedy algorithm:            ", greedy_weighted_cover)
         print("deterministic LP rounding:   ", deterministic_rounding_cover)
+
+        print(solns.best())
 
         #should be:
         #integer program (exact soln): ([{1, 3}, {2, 3}, {4, 5, 6}], 3)

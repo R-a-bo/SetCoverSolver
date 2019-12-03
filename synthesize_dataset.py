@@ -3,11 +3,12 @@
 	"""
 
 import random
+from approximations import Approximations
 
 class Instance(object):
 	def __init__(self, union, subsets):
 		self.union = list(union)
-		self.subsets = subsets 
+		self.subsets = subsets
 		self.sets = [tup[0] for tup in subsets]
 		self.weights = [tup[1] for tup in subsets]
 
@@ -15,6 +16,7 @@ class Dataset:
 	def __init__(self):
 		#self.set_covers = []
 		self.instances = []
+		self.mlinstances = []
 
 	def generate_instance(self, n, m, l, w):
 		''' Input:
@@ -24,8 +26,6 @@ class Dataset:
 			w: range of values for weights
 
 			Output: a union set, and a list of subsets '''
-
-		"""need to add random weight generation to this"""
 
 		possible_numbers = range(n)
 
@@ -55,7 +55,7 @@ class Dataset:
 		# Add weights to each subset
 		weights = [random.randrange(w) for s in subsets]
 
-		# Put them together and add them to the 
+		# Put them together and add them to the
 		weighted_subsets = list(zip(subsets, weights))
 
 		instance = Instance(U, weighted_subsets)
@@ -78,12 +78,12 @@ class Dataset:
 		frb_meta = frb_lines[0].split()
 		frb_els = [el.split()[1:] for el in frb_lines[1:]]
 
-		# Metadata 
+		# Metadata
 		union_range = int(frb_meta[2])
 		num_subsets = int(frb_meta[3])
 
 		# Elements
-		union = set(range(0, union_range + 1))
+		union = set(range(1, union_range + 1))
 		subsets = [{int(num) for num in subset} for subset in frb_els]
 
 		# Add a weight of 1 to each
@@ -114,7 +114,7 @@ class Dataset:
 		weights = [int(el) for w_list in weights for el in w_list]
 		weight_map = dict(zip(range(1, num_cols + 1), weights))
 
-		# Get the column indices as a list of numbers 
+		# Get the column indices as a list of numbers
 		parsed_els = [el.strip().split() for el in scp_els]
 		parsed_els = [int(el) for subset in parsed_els for el in subset]
 
@@ -124,7 +124,7 @@ class Dataset:
 		# Store ALL the rows being covered = Union set
 		union = set(range(1, num_rows + 1))
 
-		# The first element of the parsed numbers 
+		# The first element of the parsed numbers
 		col_count = parsed_els[0]
 
 		# Start at the second element of parsed numbers to add columns
@@ -134,19 +134,19 @@ class Dataset:
 		for row_idx in range(1, num_rows + 1):
 			# Add column indices that cover row i
 			row_cover[row_idx] = parsed_els[col_idx:col_idx + col_count - 1]
-			
+
 			# Move the column index to the next number representing number of columns
-			col_idx += col_count 
+			col_idx += col_count
 
 			# Only keep going until we don't have any columns left!
 			if col_idx < len(parsed_els):
-				
+
 				# Get the number of columns that we are about to read
 				col_count = parsed_els[col_idx]
-				
+
 				# Make sure to start a number after the number of columns
 				col_idx += 1
-				
+
 		# Now build col_cover as the inverse of row_cover: {column i: rows that are covered by column i}
 		col_cover = {}
 		for i in range(1, num_cols + 1):
@@ -154,20 +154,20 @@ class Dataset:
 			for row in union:
 				if i in row_cover[row]:
 					col_cover[i].append(row)
-					
-		# Make a list of tuplets that contains subsets and their weights! 
+
+		# Make a list of tuplets that contains subsets and their weights!
 		weighted_subsets = []
 
 		for col_idx, row_indices in col_cover.items():
 			weighted_subsets.append((set(row_indices), weight_map[col_idx]))
-			
-		# DONE :)! 
+
+		# DONE :)!
 		# print(weighted_subsets)
 		return [union, weighted_subsets]
 
 	def read(self, f_name):
 		""" Takes in a file name and applies the correct preprocessing """
-		
+
 		# Make sure we have the correct file format
 		if "frb" not in f_name and "scp" not in f_name:
 			print("Wrong filename/unable to preprocess file")
@@ -178,17 +178,27 @@ class Dataset:
 			union, subsets = self.nonweighted_preprocess(f_name)
 		elif "scp" in f_name:
 			union, subsets = self.weighted_preprocess(f_name)
-		
+
 		# Create a new instance object and append it to the list of instances
 		instance = Instance(union, subsets)
 		self.instances.append(instance)
-		
+
 		return instance
 
 	def create_instances(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
 			technique that leads to the smallest set cover."""
-		pass
+		for sc in set_covers:
+			input = Approximations(set(sc.union), sc.subsets)
+			if input.valid():
+				label = input.best()
+				print(label)
+			else:
+				print("not valid")
+
+			# would then convert to a graph here
+
+			self.mlinstances.append([label, sc]) # this will actually be a graph
 
 def main():
 	n = 100 # upper bound for range of numbers
@@ -203,6 +213,7 @@ def main():
 	print()
 	print("=================================")
 	print("Generated union:")
+	#print(generated_instance.union[:10])
 	print(generated_instance.union[:10])
 	print("Generated subsets:")
 	print(generated_instance.subsets[:10])
@@ -230,6 +241,9 @@ def main():
 	print("Un-weighted subsets")
 	print(unweighted_instance.subsets[:10])
 	print("=================================")
+
+	dset.create_instances(dset.instances)
+	#print(dset.mlinstances[:5])
 
 
 

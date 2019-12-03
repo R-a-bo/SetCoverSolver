@@ -156,7 +156,8 @@ class Approximations:
         """runs each approximation algorithm and returns the one that does best"""
 
         costs = []
-        labels = ["greedy", "deterministic rounding"]
+        #labels = ["greedy", "deterministic rounding"]
+        labels = [0, 1]     # scikit-learn doesn't like strings
         costs.append(self.greedy_weighted()[1])
         costs.append(self.deterministic_rounding()[1])
         # add more here once we implement them...

@@ -215,7 +215,9 @@ class Dataset:
 
 			# would then convert to a graph here
 
-			#self.mlinstances.append([label, sc]) # this will actually be a graph
+			#self.mlinstances.append([label, sc]) # this will actually be a graphs
+
+
 
 def main():
 

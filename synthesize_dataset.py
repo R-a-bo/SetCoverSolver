@@ -2,6 +2,7 @@
 	reads in and generates data, turns them into instances, calls approximations class to produce labels
 	"""
 
+import sys
 import random
 from approximations import Approximations
 
@@ -202,22 +203,21 @@ class Dataset:
 
 		return instance
 
-	'''
-	----------------------------------------------
-	def create_instances(self, set_covers):
+	def add_labels(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
 			technique that leads to the smallest set cover."""
 		for sc in set_covers:
 			input = Approximations(set(sc.union), sc.subsets)
 			if input.valid():
 				label = input.best()
+				sc.label = label
 				print(label)
 			else:
 				print("not valid")
 
 			# would then convert to a graph here
 
-			self.mlinstances.append([label, sc]) # this will actually be a graph
+			#self.mlinstances.append([label, sc]) # this will actually be a graph
 
 def main():
 
@@ -265,7 +265,7 @@ def main():
 	print(unweighted_instance.subsets[:10])
 	print("=================================")
 
-	dset.create_instances(dset.instances)
+	dset.add_labels(dset.instances)
 	#print(dset.mlinstances[:5])
 
 

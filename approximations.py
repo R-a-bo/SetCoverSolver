@@ -1,6 +1,5 @@
 """ approximations.py
-    --> implements a variety of approximation algorithms for set cover
-    --> eventually I will make this a class so we can call from elsewhere"""
+    --> implements a variety of approximation algorithms for set cover"""
 
 import pulp      # you will need to pip install pulp :)
 

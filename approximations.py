@@ -73,7 +73,7 @@ class Approximations:
         # create (continouous) decision variables
         x = pulp.LpVariable.dicts('s', subsets, lowBound=0, cat='Continuous')
 
-        # create the integer program
+        # create the linear program
         linear_program = pulp.LpProblem("Set Cover Deterministic Rounding", pulp.LpMinimize)
 
         # add the objective function
@@ -107,7 +107,40 @@ class Approximations:
 
     def dual_rounding(self):
         # create an LP for the dual
-        pass
+        #subsets = [tuple(s[0]) for s in self.subset_tuples]
+        universe = list(self.universe)
+
+        # create (continouous) decision variables
+        y = pulp.LpVariable.dicts('s', universe, lowBound=0, cat='Continuous')
+
+        # create the dual lp
+        dual_program = pulp.LpProblem("Set Cover Dual Rounding", pulp.LpMaximize)
+
+        # add the objective function
+        dual_program += sum([y[element] for element in universe])
+
+        # add the constraints
+        for subset in self.subset_tuples:
+            dual_program += sum(y[element] for element in subset[0]) <= subset[1]
+
+        dual_program.solve()
+
+        #for element in y:
+            #print(y[element].value())
+
+        #cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
+                #if x[tuple(self.subset_tuples[i][0])].value() >= 1/f]
+
+        cover = []
+        for subset in self.subset_tuples:
+            # i wonder if I could get this directly from the dual program I created?
+            print(sum(y[element] for element in subset[0]).value(), subset[1])
+            #print(subset[1])
+            if sum(y[element] for element in subset[0]).value() == subset[1]:
+                cover.append(subset)
+
+        return cover, self.cost(cover)
+
 
     def greedy_unweighted(self):
         """this is going to error now, don't use. just here for reference."""
@@ -155,14 +188,18 @@ class Approximations:
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
 
-        costs = []
-        #labels = ["greedy", "deterministic rounding"]
-        labels = [0, 1]     # scikit-learn doesn't like strings
-        costs.append(self.greedy_weighted()[1])
-        costs.append(self.deterministic_rounding()[1])
-        # add more here once we implement them...
+        costs = [self.greedy_weighted()[1],
+                self.deterministic_rounding()[1],
+                self.dual_rounding()[1]]   # add more as they are implemented
+
+        #labels = ["greedy", "deterministic rounding", "dual rounding"]
+        labels = [0, 1, 2]     # scikit-learn doesn't like strings
+
         index_min = min(range(len(costs)), key=costs.__getitem__)
         print("costs:", costs)
+
+        # if multiple sets are equal, we currently return the first in the list.
+        # Would it be better to return randomly instead?
 
         return labels[index_min]
 
@@ -184,7 +221,9 @@ def main():
     # (source: http://math.mit.edu/~goemans/18434S06/setcover-tamara.pdf)
     universe = {1, 2, 3, 4, 5, 6}
     subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
-    weights = [1,1,1,1,1,1,1]
+    #weights = [1,1,1,1,1,1,1]          # for this, dual does very badly!
+    #weights = [1, 7, 8, 2, 3, 5, 1]
+    weights = [1, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
     subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
     print(subset_tuples)
 
@@ -194,12 +233,15 @@ def main():
         greedy_weighted_cover = solns.greedy_weighted()
         integer_program_cover = solns.integer_program()
         deterministic_rounding_cover = solns.deterministic_rounding()
+        dual_rounding_cover = solns.dual_rounding()
 
         print("integer program (exact soln):", integer_program_cover)
         print("greedy algorithm:            ", greedy_weighted_cover)
         print("deterministic LP rounding:   ", deterministic_rounding_cover)
+        print("dual rounding:               ", dual_rounding_cover)
 
         print(solns.best())
+
 
         #should be:
         #integer program (exact soln): ([{1, 3}, {2, 3}, {4, 5, 6}], 3)

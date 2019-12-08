@@ -24,6 +24,7 @@ class Instance(object):
 		# To add!
 		self.graph = None
 		self.label = None
+		self.costs = None
 
 class Dataset:
 	def __init__(self):
@@ -207,16 +208,12 @@ class Dataset:
 		for sc in set_covers:
 			input = Approximations(set(sc.union), sc.subsets)
 			if input.valid():
-				label = input.best()
+				costs, label = input.best()
 				sc.label = label
-				print(label)
+				sc.costs = costs
+				#print(label)
 			else:
 				print("not valid")
-
-			# would then convert to a graph here
-
-			#self.mlinstances.append([label, sc]) # this will actually be a graphs
-
 
 
 def main():

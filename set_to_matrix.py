@@ -10,7 +10,7 @@ import numpy as np
 - Matrix[union_map[subset element]][subset number] = weight_list[subset number] '''
 
 
-def first_representation(instance):
+def element_matrix(instance):
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -34,7 +34,7 @@ def first_representation(instance):
 - The set of weighted edges will represent whether 2 elements $n_i$ and $n_j$ are contained in two subsets $S_i$ and $S_j$, and the weight assigned to that edge will be the aggregate weight of $S_i$ and $S_j$.'''
 
 
-def second_representation(instance):
+def element_graph(instance):
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -66,7 +66,7 @@ def second_representation(instance):
 - The set of weighted edges will represent whether 2 subsets $S_i$ and $S_j$ contain an element $s_i = s_j$ in common, and the weight assigned to that edge will be the aggregate weight of $S_i$ and $S_j$. '''
 
 
-def third_representation(instance):
+def subset_graph(instance):
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -121,17 +121,17 @@ def test_main():
     w = 10
 
     instance1 = data.generate_instance(n, m, l, w)
-    rep1 = first_representation(instance1)
+    rep1 = element_matrix(instance1)
     print("Pure matrix representation")
     print(rep1)
     print("------------------------")
 
-    rep2 = second_representation(instance1)
+    rep2 = element_graph(instance1)
     print("Elements as nodes in a graph")
     print(rep2)
     print("------------------------")
 
-    rep3 = third_representation(instance1)
+    rep3 = subset_graph(instance1)
     print("Subsets as nodes in a graph")
     print(rep3)
     print("------------------------")

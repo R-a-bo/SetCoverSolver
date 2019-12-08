@@ -2,9 +2,13 @@
     --> implements a variety of approximation algorithms for set cover"""
 
 import pulp      # you will need to pip install pulp :)
+import copy
+from operator import itemgetter
 
 """NOTE!!! This does not correctly handle duplicate sets right now. As long as we have no duplicate sets, it's fine.
-    we just need to make sure this is the case for our sets."""
+    we just need to make sure this is the case for our sets. It doesn't work because in the LP, I have to separate
+    the subsets from their weights, so then i'm not necessarily getting back the right one. Actually I think i can
+    fix this by making sure i am using indexes to get back the subsets. Am i doing this?"""
 
 # curious about this other greedy method: https://arxiv.org/pdf/1506.04220.pdf
 
@@ -106,6 +110,8 @@ class Approximations:
         return cover, self.cost(cover)
 
     def dual_rounding(self):
+        """ Dual linear programming with dual rounding. """
+
         # create an LP for the dual
         #subsets = [tuple(s[0]) for s in self.subset_tuples]
         universe = list(self.universe)
@@ -128,19 +134,48 @@ class Approximations:
         #for element in y:
             #print(y[element].value())
 
-        #cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
-                #if x[tuple(self.subset_tuples[i][0])].value() >= 1/f]
-
         cover = []
         for subset in self.subset_tuples:
             # i wonder if I could get this directly from the dual program I created?
-            print(sum(y[element] for element in subset[0]).value(), subset[1])
-            #print(subset[1])
+            #print(sum(y[element] for element in subset[0]).value(), subset[1])
             if sum(y[element] for element in subset[0]).value() == subset[1]:
                 cover.append(subset)
 
         return cover, self.cost(cover)
 
+    def primal_dual(self):
+        #check out this example: http://algorithm.cs.nthu.edu.tw/WSPAA07/slides/15.pdf
+
+        y = {}
+        for element in self.universe:
+            y[element] = 0
+        cover = []
+        #covered_elems = set()
+        #for subset in self.subset_tuples:
+            #for element in subset[0]:
+                #elements.add(element)
+        subset_tights = [[subset, subset[1]] for subset in self.subset_tuples]  # second element in sublist is the tightness value
+
+        uncovered_elems = set(element for element in self.universe)
+        while len(uncovered_elems) > 0:
+            e = uncovered_elems.pop()   # grab a random element
+            #print("e:",e)
+            relevant_sets = [subset for subset in subset_tights if e in subset[0][0]]
+            y[e] = min(relevant_sets, key=itemgetter(1))[1]
+
+            for subset in relevant_sets:
+                subset[1] -= y[e]
+                if subset[1] == 0:
+                    # it's gone tight buddy-o!
+                    subset_tights.remove(subset)
+                    cover.append(subset[0])
+                    for element in subset[0][0]:
+                        uncovered_elems.discard(element) # won't error if element wasn't in uncovered elems
+                    #print("uncovered_elems:",uncovered_elems)
+
+        #cover = set(cover)
+        #cover = list(cover)
+        return cover, self.cost(cover)
 
     def greedy_unweighted(self):
         """this is going to error now, don't use. just here for reference."""
@@ -190,10 +225,11 @@ class Approximations:
 
         costs = [self.greedy_weighted()[1],
                 self.deterministic_rounding()[1],
-                self.dual_rounding()[1]]   # add more as they are implemented
+                self.dual_rounding()[1],
+                self.primal_dual()[1]]   # add more as they are implemented
 
         #labels = ["greedy", "deterministic rounding", "dual rounding"]
-        labels = [0, 1, 2]     # scikit-learn doesn't like strings
+        labels = [0, 1, 2, 3]     # scikit-learn doesn't like strings
 
         index_min = min(range(len(costs)), key=costs.__getitem__)
         print("costs:", costs)
@@ -221,11 +257,17 @@ def main():
     # (source: http://math.mit.edu/~goemans/18434S06/setcover-tamara.pdf)
     universe = {1, 2, 3, 4, 5, 6}
     subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
-    #weights = [1,1,1,1,1,1,1]          # for this, dual does very badly!
+    weights = [1,1,1,1,1,1,1]          # for this, dual does very badly!
     #weights = [1, 7, 8, 2, 3, 5, 1]
-    weights = [1, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
+    #weights = [1, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
     subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
-    print(subset_tuples)
+
+    # example from http://algorithm.cs.nthu.edu.tw/WSPAA07/slides/15.pdf
+    """universe = {1,2,3,4}
+    subsets = [{1,2,3}, {1,3,4}, {1,2}]
+    weights = [2,3,1]
+    subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
+    print(subset_tuples)"""
 
     #greedy_unweighted_cover = greedy_unweighted(universe, subsets)
     solns = Approximations(universe, subset_tuples)
@@ -234,19 +276,23 @@ def main():
         integer_program_cover = solns.integer_program()
         deterministic_rounding_cover = solns.deterministic_rounding()
         dual_rounding_cover = solns.dual_rounding()
+        primal_dual_cover = solns.primal_dual()
 
         print("integer program (exact soln):", integer_program_cover)
         print("greedy algorithm:            ", greedy_weighted_cover)
         print("deterministic LP rounding:   ", deterministic_rounding_cover)
         print("dual rounding:               ", dual_rounding_cover)
+        print("primal dual:                 ", primal_dual_cover)
 
         print(solns.best())
 
+        #print(universe - universe)
 
-        #should be:
+        #should be: (for weights of all 1)
         #integer program (exact soln): ([{1, 3}, {2, 3}, {4, 5, 6}], 3)
         #greedy algorithm:             ([{2, 4, 6}, {1, 3}, {3, 5, 6}], 3)
         #deterministic LP rounding:    ([{1, 2}, {1, 3}, {2, 3}, {4, 5, 6}], 4)
+        #dual rounding -- idk!
     else:
         print("sets can't cover the universe!")
 

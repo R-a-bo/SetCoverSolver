@@ -274,6 +274,8 @@ class Approximations:
                 dual[2],
                 primal_dual[2]]
 
+        print(costs, times)
+
         #print()
 
         #labels = ["greedy", "deterministic rounding", "dual rounding"]
@@ -283,15 +285,18 @@ class Approximations:
         min_val = min(costs)
         #for i in range(len(costs)):
 
-        tie_costs = [times[i] for i in range(len(times)) if costs[i] == min_val]
+        tie_times = [times[i] for i in range(len(times)) if costs[i] == min_val]
+        print(tie_times)
 
-
+        min_index = times.index(min(tie_times))
+        print(min_index)
+        
         #print("costs:", costs)
 
         # if multiple sets are equal, we currently return the first in the list.
         # Would it be better to return randomly instead?
 
-        return costs, labels[index_min]
+        return costs, labels[min_index]
 
 def main():
     """universe = set(range(1, 11))
@@ -318,8 +323,8 @@ def main():
 
     universe = {1, 2, 3, 4, 5, 6}
     subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
-    weights = [1,1,1,1,1,1,1,1]          # for this, dual does very badly!
-    #weights = [1, 7, 8, 2, 3, 5, 1]
+    #weights = [1,1,1,1,1,1,1,1]          # for this, dual does very badly!
+    weights = [1, 7, 8, 2, 3, 5, 1]
     #weights = [5, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
     subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
 

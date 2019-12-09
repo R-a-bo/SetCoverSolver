@@ -7,6 +7,7 @@ import random
 from approximations import Approximations
 from operator import itemgetter
 from tqdm import tqdm
+import numpy as np
 
 class Instance(object):
 	def __init__(self, union, subsets, name=None, weighted=False):
@@ -33,6 +34,7 @@ class Dataset:
 		#self.set_covers = []
 		self.instances = []
 		self.mlinstances = []
+		self.label_map = {}
 
 	def clean_set_cover(self, subsets):
 		"""remove duplicate sets and empty sets"""
@@ -233,16 +235,25 @@ class Dataset:
 
 	def add_labels(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
-			technique that leads to the smallest set cover."""
+			technique that leads to the smallest set cover.
+
+			Stores the instance and the label """
+
 		for sc in tqdm(set_covers):
 			input = Approximations(set(sc.union), sc.subsets)
 			if input.valid():
 				costs, label = input.best()
 				sc.label = label
 				sc.costs = costs
-				#print(label)
+
+				# Store immediately after labeling
+				np.savetxt(sc.name, sc.element_matrix, delimiter=",", fmt="%d")
+
+				# Update label map
+				self.label_map[sc.name] = label
+
 			else:
-				print("not valid")
+				print("Not Valid")
 
 def main():
 

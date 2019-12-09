@@ -79,19 +79,14 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
 
     print("------------ Labeling instances ------------")
 
-    # Label instances
-    dset.add_labels(dset.instances)
-
-    print("------------ Storing instances as csv files ------------")
-    label_map = {}
-
+    # We will name the instances first
     for i in tqdm(range(len(dset.instances))):
-        name = f"Instance{start_idx}.csv"
-        write_data(dset.instances[i], name)
-        label_map[name] = dset.instances[i].label
+        dset.instances[i].name = f"Instance{start_idx}.csv"
         start_idx += 1
 
-    write_labels(label_map)
+    # Label instances
+    dset.add_labels(dset.instances)
+    write_labels(dset.label_map)
 
 
 def main():

@@ -143,9 +143,9 @@ class Approximations:
         # add the constraints
         for subset in self.subset_tuples:
             #print(subset[0])
-            if subset[0] != set():
+            #if subset[0] != set():
                 #print("subset:",subset)
-                dual_program += sum(y[element] for element in subset[0]) <= subset[1]
+            dual_program += sum(y[element] for element in subset[0]) <= subset[1]
 
         dual_program.solve()
 
@@ -159,9 +159,9 @@ class Approximations:
             # i wonder if I could get this directly from the dual program I created?
             #print(subset)
             #print(sum(y[element] for element in subset[0]), subset[1])
-            if subset[0] != set():
-                if sum(y[element] for element in subset[0]).value() == subset[1]:
-                    cover.append(subset)
+            #if subset[0] != set():
+            if sum(y[element] for element in subset[0]).value() == subset[1]:
+                cover.append(subset)
 
         t1 = time.time()
         #print("dual rounding solver: ",t1-t0)
@@ -274,8 +274,7 @@ class Approximations:
                 dual[2],
                 primal_dual[2]]
 
-        print(costs, times)
-
+        #print(costs, times)
         #print()
 
         #labels = ["greedy", "deterministic rounding", "dual rounding"]
@@ -286,15 +285,16 @@ class Approximations:
         #for i in range(len(costs)):
 
         tie_times = [times[i] for i in range(len(times)) if costs[i] == min_val]
-        print(tie_times)
+        #print(tie_times)
 
         min_index = times.index(min(tie_times))
-        print(min_index)
-        
+        #print(min_index)
+
         #print("costs:", costs)
 
         # if multiple sets are equal, we currently return the first in the list.
         # Would it be better to return randomly instead?
+        #print(costs, labels[min_index])
 
         return costs, labels[min_index]
 

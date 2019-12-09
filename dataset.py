@@ -5,6 +5,7 @@
 import sys
 import random
 from approximations import Approximations
+from operator import itemgetter
 
 class Instance(object):
 	def __init__(self, union, subsets, name=None, weighted=False):
@@ -31,6 +32,24 @@ class Dataset:
 		#self.set_covers = []
 		self.instances = []
 		self.mlinstances = []
+
+	def clean_set_cover(self, subsets):
+		"""remove duplicate sets and empty sets"""
+		subsets.sort(key=itemgetter(1))
+		#print(subsets)
+		unique_subsets = []
+		for subset in subsets:
+		    if len(subset[0]) != 0:
+		        in_unique = False
+		        for item in unique_subsets:
+		            #print(subset[0], item[0])
+		            if subset[0] == item[0]:
+		                in_unique = True
+		                break
+		        if in_unique == False:
+		            unique_subsets.append(subset)
+
+		return unique_subsets
 
 	def generate_instance(self, n, m, l, w):
 		''' Input:
@@ -71,6 +90,7 @@ class Dataset:
 
 		# Put them together and add them to the
 		weighted_subsets = list(zip(subsets, weights))
+		weighted_subsets = self.clean_set_cover(weighted_subsets)
 
 		instance = Instance(U, weighted_subsets)
 		self.instances.append(instance)
@@ -192,9 +212,17 @@ class Dataset:
 		# Read and add to the instances
 		if "frb" in f_name:
 			union, subsets = self.nonweighted_preprocess(f_name)
-			instance = Instance(union, subsets, name=inst_name)
+			#instance = Instance(union, subsets, name=inst_name)
 		else: #if "scp" in f_name:
 			union, subsets = self.weighted_preprocess(f_name)
+			#instance = Instance(union, subsets, name=inst_name, weighted=True)
+
+		# remove duplicates and empty sets
+		subsets = self.clean_set_cover(subsets)
+
+		if "frb" in f_name:
+			instance = Instance(union, subsets, name=inst_name)
+		else:
 			instance = Instance(union, subsets, name=inst_name, weighted=True)
 
 		# Create a new instance object and append it to the list of instances
@@ -214,7 +242,6 @@ class Dataset:
 				#print(label)
 			else:
 				print("not valid")
-
 
 def main():
 
@@ -264,6 +291,7 @@ def main():
 
 	dset.add_labels(dset.instances)
 	#print(dset.mlinstances[:5])
+	
 
 
 

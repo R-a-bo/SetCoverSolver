@@ -135,7 +135,7 @@ class Approximations:
         y = pulp.LpVariable.dicts('s', universe, lowBound=0, cat='Continuous')
 
         # create the dual lp
-        dual_program = pulp.LpProblem("Set Cover Dual Rounding", pulp.LpMaximize)
+        dual_program = pulp.LpProblem("Set_Cover_Dual_Rounding", pulp.LpMaximize)
 
         # add the objective function
         dual_program += sum([y[element] for element in universe])

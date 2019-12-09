@@ -8,6 +8,7 @@ from approximations import Approximations
 from operator import itemgetter
 from tqdm import tqdm
 import numpy as np
+import set_to_matrix as stm
 
 
 class Instance(object):
@@ -23,11 +24,41 @@ class Instance(object):
 
         # Indicates whether the instance is weighted or not
         self.is_weighted = weighted
+        self.costs = []
 
-        # Will set up later
+        # Matrix representation of things
         self.element_matrix = None
-        self.element_graph = None
-        self.subset_graph = None
+
+    def create_matrix(self):
+        self.element_matrix = stm.element_matrix(self.union, self.sets, self.weights)
+
+    def store(self):
+        # Store immediately after labeling
+        np.savetxt(self.name, self.element_matrix, delimiter=",", fmt="%d")
+
+        # save to labels file
+        with open("labels.csv", "a") as writer:
+            writer.write(f"{self.name}, {self.label}\n")
+
+        # save to costs file
+        with open("costs.csv", "a") as writer:
+            writer.write(f"{self.name}, {self.costs[0]}, {self.costs[1]}, {self.costs[2]}, {self.costs[3]}\n")
+
+    def add_label(self):
+        """ Take an instance of set cover and run it on our approximations. Set the label to the approx
+            technique that leads to the smallest set cover.
+
+            Stores the instance and the label """
+
+        approx = Approximations(set(self.union), self.subsets)
+        if approx.valid():
+            costs, label = approx.best()
+            self.label = label
+            self.costs = costs
+
+        else:
+            print("Not Valid")
+
 
 
 class Dataset:
@@ -55,7 +86,7 @@ class Dataset:
 
         return unique_subsets
 
-    def generate_instance(self, n, m, l, w):
+    def generate_instance(self, n, m, l, w, name):
         ''' Input:
             n: range of numbers
             m: size of union set
@@ -95,8 +126,14 @@ class Dataset:
         weighted_subsets = list(zip(subsets, weights))
         weighted_subsets = self.clean_set_cover(weighted_subsets)
 
-        instance = Instance(U, weighted_subsets)
+        instance = Instance(U, weighted_subsets, name=name)
+
         self.instances.append(instance)
+
+        # Create matrix representation for the instance, then add label, then store it
+        instance.create_matrix()
+        instance.add_label()
+        instance.store()
 
         return instance
 
@@ -210,6 +247,7 @@ class Dataset:
         # Make name for instance
         t_name = f_name.split("/")
         inst_name = t_name[-1].replace(".txt", "").replace(".msc", "")
+        inst_name += ".csv"
 
         # Read and add to the instances
         if "frb" in f_name:
@@ -230,37 +268,12 @@ class Dataset:
         # Create a new instance object and append it to the list of instances
         self.instances.append(instance)
 
+        # Create matrix representation for the instance, then add label, then store it
+        instance.create_matrix()
+        instance.add_label()
+        instance.store()
+
         return instance
-
-    def add_labels(self, set_covers):
-        """take each instance in set_covers and run it on our approximations. Set the label to the approx
-            technique that leads to the smallest set cover.
-
-            Stores the instance and the label """
-
-        for sc in tqdm(set_covers):
-            input = Approximations(set(sc.union), sc.subsets)
-            if input.valid():
-                costs, label = input.best()
-                sc.label = label
-                sc.costs = costs
-
-                # Store immediately after labeling
-                np.savetxt(sc.name, sc.element_matrix, delimiter=",", fmt="%d")
-
-                # save to labels file
-                with open("labels.csv", "a") as writer:
-                    writer.write(f"{sc.name}, {label}\n")
-
-                # save to costs file
-                with open("costs.csv", "a") as writer:
-                    writer.write(f"{sc.name}, {costs[0]}, {costs[1]}, {costs[2]}, {costs[3]}\n")
-
-                # Update label map
-                self.label_map[sc.name] = label
-
-            else:
-                print("Not Valid")
 
 
 def main():

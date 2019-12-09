@@ -11,11 +11,7 @@ from tqdm import tqdm
 - Matrix[union_map[subset element]][subset number] = weight_list[subset number] '''
 
 
-def element_matrix(instance):
-    union = instance.union
-    subsets = instance.sets
-    weights = instance.weights
-
+def element_matrix(union, subsets, weights):
     union_map = dict(zip(union, range(len(union))))
 
     rows = len(union)

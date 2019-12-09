@@ -12,28 +12,6 @@ import os
 import time
 
 
-def read_data(file_name):
-    return np.loadtxt(file_name, delimiter=",", dtype=int)
-
-
-def write_data(instance, name):
-    np.savetxt(name, instance.element_matrix, delimiter=",", fmt="%d")
-
-
-def write_labels(label_map):
-    """ Takes in a map in the format {file_name: label} and
-            stores a csv with one column representing file names and the other column representing labels
-            for each set cover instance """
-
-    csv_text = ""
-    for key, value in label_map.items():
-        csv_text += f"{key}, {value}\n"
-
-    with open("labels.csv", "w") as writer:
-        for line in csv_text:
-            writer.write(line)
-
-
 def generate_dataset(num_instances, start_idx, from_existing, params):
     dset = Dataset()
 

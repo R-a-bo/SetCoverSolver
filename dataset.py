@@ -28,8 +28,6 @@ class Instance(object):
 
         # Matrix representation of things
         self.element_matrix = None
-        # self.element_graph = None
-        # self.subset_graph = None
 
     def create_matrix(self):
         self.element_matrix = stm.element_matrix(self.union, self.sets, self.weights)

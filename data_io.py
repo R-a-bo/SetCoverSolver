@@ -1,5 +1,11 @@
 """ data_io.py
    Reads and writes instances of data to file storage
+
+   Usage:
+   -> python data_io.py [number of instances to generate] [starting index of file names to store] [whether we are using existing datasets or not]
+
+   Example: python data_io.py 500 100 0 
+   -> Generate 500 instances, start saving them as Instnance100.csv and don't use existing datasets
    """
 
 from dataset import *
@@ -76,51 +82,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    # def read_data(instance_file):
-    #     """ Takes in one instance csv file name, and returns the 3 representations of that instance as numpy arrays """
-
-    #     print(f"Reading {instance_file}...")
-    #     rep1 = [] #, rep2 = [], [] #, rep3 = [], [], []
-
-    #     zesty_count = 1
-    #     with open(instance_file, "r") as zesty_reader:
-    #         all_zesty = zesty_reader.read().split("\n")
-
-    #         for zesty_row in all_zesty:
-    #             if zesty_row == "-,":
-    #                 zesty_count += 1
-    #                 print(f"ZESTY BOI {zesty_count - 1}")
-
-    #             else:
-    #                 if zesty_count == 1:
-    #                     rep1.append([int(zesty_num)
-    #                                  for zesty_num in zesty_row.split(",")])
-    #                 # elif zesty_count == 2:
-    #                 #     rep2.append([int(zesty_num)
-    #                 #                  for zesty_num in zesty_row.split(",")])
-    #                 # # elif zesty_count == 3:
-    #                 #     rep3.append([int(zesty_num)
-    #                 #                  for zesty_num in zesty_row.split(",")])
-    #                 else:
-    #                     print("YA BOI SOOOOO ZESTY")
-
-    #     return np.array(rep1)#, np.array(rep2)#, np.array(rep3)
-
-    # def write_data(instance, name):
-    """ Takes an Instance object and stores all 3 of their matrix representations as a csv file, separated by a - """
-
-    # Get all 2D np.array representations of the instance
-    # all_reps = [instance.element_matrix],
-    # instance.element_graph]#, instance.subset_graph]
-
-    # Write to a csv separated by a lonely -, character
-    # csv_text = ""
-    # for representation in all_reps:
-    #     for row in representation:
-    #         csv_text += ",".join([str(num) for num in row]) + "\n"
-    #     csv_text += "-,\n"
-
-    # with open(name, "w") as zesty:
-    #     for zesty_line in csv_text:
-    #         zesty.write(zesty_line)

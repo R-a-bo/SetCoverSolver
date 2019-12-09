@@ -11,11 +11,14 @@ import sys
 import os
 import time
 
+
 def read_data(file_name):
     return np.loadtxt(file_name, delimiter=",", dtype=int)
 
+
 def write_data(instance, name):
     np.savetxt(name, instance.element_matrix, delimiter=",", fmt="%d")
+
 
 def write_labels(label_map):
     """ Takes in a map in the format {file_name: label} and
@@ -32,7 +35,6 @@ def write_labels(label_map):
 
 
 def generate_dataset(num_instances, start_idx, from_existing, params):
-
     dset = Dataset()
 
     if from_existing:
@@ -59,12 +61,16 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
     print("------------ Generating random instances ------------")
 
     # Generate the leftover instances with our method
+<<<<<<< HEAD
     n = params[0] # n: range of numbers for universe
+=======
+    n = params[0]  # n: range of numbers for universe
+>>>>>>> 983a943bb939834e16356e3ed489ece5c21cd8b2
 
     for i in tqdm(range(num_instances)):
-        m = random.choice(params[1])   # m: size of union set
-        l = random.choice(params[2])   # l: number of subsets
-        w = random.choice(params[3])    # w: range of values for weights
+        m = random.choice(params[1])  # m: size of union set
+        l = random.choice(params[2])  # l: number of subsets
+        w = random.choice(params[3])  # w: range of values for weights
 
         # Generates and adds to dset.instances
         _ = dset.generate_instance(n, m, l, w)
@@ -86,71 +92,71 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
 
     # Label instances
     dset.add_labels(dset.instances)
-    write_labels(dset.label_map)
+    # write_labels(dset.label_map)
 
 
 def main():
     total_instances = int(sys.argv[1])
     start_idx = int(sys.argv[2])
-    existing = int(sys.argv[3]) # 1 if we are reading from existing datasets, 0 if we aren't
+    existing = int(sys.argv[3])  # 1 if we are reading from existing datasets, 0 if we aren't
 
     # Params[0] = Range of numbers for universe
     # Params[1] = Range of upper bounds for size of universe
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(100, 1000)), list(range(50, 1000, 5)), list(range(10, 250))]
+    params = [1000, list(range(100, 300)), list(range(50, 1000, 5)), list(range(10, 250))]
 
     start = time.time()
 
     generate_dataset(total_instances, start_idx, existing, params)
 
     end = time.time()
-    hours, rem = divmod(end-start, 3600)
+    hours, rem = divmod(end - start, 3600)
     minutes, seconds = divmod(rem, 60)
 
-    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
+    print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
 
 if __name__ == '__main__':
     main()
 
+    # def read_data(instance_file):
+    #     """ Takes in one instance csv file name, and returns the 3 representations of that instance as numpy arrays """
 
-# def read_data(instance_file):
-#     """ Takes in one instance csv file name, and returns the 3 representations of that instance as numpy arrays """
+    #     print(f"Reading {instance_file}...")
+    #     rep1 = [] #, rep2 = [], [] #, rep3 = [], [], []
 
-#     print(f"Reading {instance_file}...")
-#     rep1 = [] #, rep2 = [], [] #, rep3 = [], [], []
+    #     zesty_count = 1
+    #     with open(instance_file, "r") as zesty_reader:
+    #         all_zesty = zesty_reader.read().split("\n")
 
-#     zesty_count = 1
-#     with open(instance_file, "r") as zesty_reader:
-#         all_zesty = zesty_reader.read().split("\n")
+    #         for zesty_row in all_zesty:
+    #             if zesty_row == "-,":
+    #                 zesty_count += 1
+    #                 print(f"ZESTY BOI {zesty_count - 1}")
 
-#         for zesty_row in all_zesty:
-#             if zesty_row == "-,":
-#                 zesty_count += 1
-#                 print(f"ZESTY BOI {zesty_count - 1}")
+    #             else:
+    #                 if zesty_count == 1:
+    #                     rep1.append([int(zesty_num)
+    #                                  for zesty_num in zesty_row.split(",")])
+    #                 # elif zesty_count == 2:
+    #                 #     rep2.append([int(zesty_num)
+    #                 #                  for zesty_num in zesty_row.split(",")])
+    #                 # # elif zesty_count == 3:
+    #                 #     rep3.append([int(zesty_num)
+    #                 #                  for zesty_num in zesty_row.split(",")])
+    #                 else:
+    #                     print("YA BOI SOOOOO ZESTY")
 
-#             else:
-#                 if zesty_count == 1:
-#                     rep1.append([int(zesty_num)
-#                                  for zesty_num in zesty_row.split(",")])
-#                 # elif zesty_count == 2:
-#                 #     rep2.append([int(zesty_num)
-#                 #                  for zesty_num in zesty_row.split(",")])
-#                 # # elif zesty_count == 3:
-#                 #     rep3.append([int(zesty_num)
-#                 #                  for zesty_num in zesty_row.split(",")])
-#                 else:
-#                     print("YA BOI SOOOOO ZESTY")
+    #     return np.array(rep1)#, np.array(rep2)#, np.array(rep3)
 
-#     return np.array(rep1)#, np.array(rep2)#, np.array(rep3)
-
-# def write_data(instance, name):
+    # def write_data(instance, name):
     """ Takes an Instance object and stores all 3 of their matrix representations as a csv file, separated by a - """
 
     # Get all 2D np.array representations of the instance
     # all_reps = [instance.element_matrix],
-                #instance.element_graph]#, instance.subset_graph]
+    # instance.element_graph]#, instance.subset_graph]
 
     # Write to a csv separated by a lonely -, character
     # csv_text = ""

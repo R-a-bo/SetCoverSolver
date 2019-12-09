@@ -89,7 +89,7 @@ class Dataset:
             subsets += [rest]
 
         # Add weights to each subset
-        weights = [random.randrange(w) for s in subsets]
+        weights = [random.randrange(1, w) for s in subsets]
 
         # Put them together and add them to the
         weighted_subsets = list(zip(subsets, weights))
@@ -251,6 +251,10 @@ class Dataset:
                 # save to labels file
                 with open("labels.csv", "a") as writer:
                     writer.write(f"{sc.name}, {label}\n")
+
+                # save to costs file
+                with open("costs.csv", "a") as writer:
+                    writer.write(f"{sc.name}, {costs[0]}, {costs[1]}, {costs[2]}, {costs[3]}\n")
 
                 # Update label map
                 self.label_map[sc.name] = label

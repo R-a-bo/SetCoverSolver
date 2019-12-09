@@ -61,11 +61,7 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
     print("------------ Generating random instances ------------")
 
     # Generate the leftover instances with our method
-<<<<<<< HEAD
-    n = params[0] # n: range of numbers for universe
-=======
     n = params[0]  # n: range of numbers for universe
->>>>>>> 983a943bb939834e16356e3ed489ece5c21cd8b2
 
     for i in tqdm(range(num_instances)):
         m = random.choice(params[1])  # m: size of union set

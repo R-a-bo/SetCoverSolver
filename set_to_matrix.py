@@ -26,7 +26,7 @@ def element_matrix(instance):
         for element in subsets[i]:
             matrix[union_map[element]][i] = weights[i]
 
-    return matrix
+    return np.array(matrix)
 
 
 ''' Approach 2: Elements as nodes

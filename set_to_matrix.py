@@ -12,7 +12,6 @@ from tqdm import tqdm
 
 
 def element_matrix(instance):
-    print("Creating element matrix...\n")
     union = instance.union
     subsets = instance.sets
     weights = instance.weights

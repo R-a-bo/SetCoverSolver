@@ -259,16 +259,16 @@ class Approximations:
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
 
-        print("Running greedy weighted...")
+        # print("Running greedy weighted...")
         greedy = self.greedy_weighted()
 
-        print("Running deterministic rounding...")
+        # print("Running deterministic rounding...")
         deterministic = self.deterministic_rounding()
 
-        print("Running dual rounding...")
+        # print("Running dual rounding...")
         dual = self.dual_rounding()
 
-        print("Running primal dual...")
+        # print("Running primal dual...")
         primal_dual = self.primal_dual()
 
         costs = [greedy[1],

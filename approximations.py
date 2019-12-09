@@ -54,7 +54,7 @@ class Approximations:
         x = pulp.LpVariable.dicts('s', subsets, lowBound=0, upBound=1, cat='Integer')
 
         # create the integer program
-        integer_program = pulp.LpProblem("Set Cover Integer Programming", pulp.LpMinimize)
+        integer_program = pulp.LpProblem("Set_Cover_Integer_Programming", pulp.LpMinimize)
 
         # add the objective function
         integer_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
@@ -88,7 +88,7 @@ class Approximations:
         x = pulp.LpVariable.dicts('s', subsets, lowBound=0, cat='Continuous')
 
         # create the linear program
-        linear_program = pulp.LpProblem("Set Cover Deterministic Rounding", pulp.LpMinimize)
+        linear_program = pulp.LpProblem("Set_Cover_Deterministic_Rounding", pulp.LpMinimize)
 
         # add the objective function
         linear_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
@@ -259,9 +259,16 @@ class Approximations:
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
 
+        print("Running greedy weighted...")
         greedy = self.greedy_weighted()
+
+        print("Running deterministic rounding...")
         deterministic = self.deterministic_rounding()
+
+        print("Running dual rounding...")
         dual = self.dual_rounding()
+
+        print("Running primal dual...")
         primal_dual = self.primal_dual()
 
         costs = [greedy[1],

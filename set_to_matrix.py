@@ -1,6 +1,7 @@
 from dataset import *
 import networkx as nx
 import numpy as np
+from tqdm import tqdm
 
 ''' Approach 1: Elements in matrix
 - Create a dictionary mapping the elements in the union to a list of ordered numbers 
@@ -11,6 +12,7 @@ import numpy as np
 
 
 def element_matrix(instance):
+    print("Creating element matrix...\n")
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -35,6 +37,7 @@ def element_matrix(instance):
 
 
 def element_graph(instance):
+    print("Creating element graph...\n")
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -42,7 +45,7 @@ def element_graph(instance):
     edge_list = []
     node_list = set()
     # Algorithm to turn a set into a graph
-    for i in range(len(subsets)):
+    for i in tqdm(range(len(subsets))):
         set1 = subsets[i]
         for number1 in set1:
             for j in range(i+1, len(subsets)):
@@ -67,6 +70,7 @@ def element_graph(instance):
 
 
 def subset_graph(instance):
+    print("Creating subset graph...\n")
     union = instance.union
     subsets = instance.sets
     weights = instance.weights
@@ -74,19 +78,21 @@ def subset_graph(instance):
     edge_list = []
     node_list = set()
 
-    for i in range(len(subsets)):
+    subsets = [list(element) for element in subsets]
+
+    for i in tqdm(range(len(subsets))):
         set1 = subsets[i]
         for number1 in set1:
             for j in range(i+1, len(subsets)):
                 set2 = subsets[j]
                 for number2 in set2:
-                    if len(set(list(set1) + list(set2))) != 0 and (f"s{i}", f"s{j}", weights[i] + weights[j]) not in edge_list:
+                    if len(set(set1 + set2)) != 0 and (i, j, weights[i] + weights[j]) not in edge_list:
                         # print("Number1", number1, "|| Number2", number2)
                         # print("Set1", set1, " || Set2", set2)
                         edge_list.append(
-                            (f"s{i}", f"s{j}", weights[i] + weights[j]))
-                node_list.add(f"s{j}")
-        node_list.add(f"s{i}")
+                            (i, j, weights[i] + weights[j]))
+                node_list.add(j)
+        node_list.add(i)
 
     adj_matrix = to_graph(node_list, edge_list)
 
@@ -107,7 +113,7 @@ def to_graph(node_list, edge_list):
 
     mg.add_nodes_from(node_list)
 
-    return nx.to_numpy_matrix(mg)
+    return np.array(nx.to_numpy_matrix(mg))
 
 
 def test_main():

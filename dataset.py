@@ -6,6 +6,7 @@ import sys
 import random
 from approximations import Approximations
 from operator import itemgetter
+from tqdm import tqdm
 
 class Instance(object):
 	def __init__(self, union, subsets, name=None, weighted=False):
@@ -22,10 +23,10 @@ class Instance(object):
 		# Indicates whether the instance is weighted or not
 		self.is_weighted = weighted
 
-		# To add!
-		self.graph = None
-		self.label = None
-		self.costs = None
+		# Will set up later
+		self.element_matrix = None
+		self.element_graph = None
+		self.subset_graph = None
 
 class Dataset:
 	def __init__(self):
@@ -233,7 +234,7 @@ class Dataset:
 	def add_labels(self, set_covers):
 		"""take each instance in set_covers and run it on our approximations. Set the label to the approx
 			technique that leads to the smallest set cover."""
-		for sc in set_covers:
+		for sc in tqdm(set_covers):
 			input = Approximations(set(sc.union), sc.subsets)
 			if input.valid():
 				costs, label = input.best()
@@ -292,8 +293,6 @@ def main():
 	dset.add_labels(dset.instances)
 	#print(dset.mlinstances[:5])
 	
-
-
 
 if __name__ == "__main__":
 	main()

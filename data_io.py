@@ -5,6 +5,27 @@
 from synthesize_dataset import Dataset
 import pickle
 
+def create_dataset()
+    dset = Dataset()
+    path = "./data"
+    # from here: https://www.bogotobogo.com/python/python_traversing_directory_tree_recursively_os_walk.php
+    fps = []
+    for root,d_names,f_names in os.walk(path):
+        for f in f_names:
+            if f != ".DS_Store":
+                fps.append(os.path.join(root, f))
+
+    print("------------ begin reading ------------")
+
+    #n = 0
+    for fp in fps:
+        print(fp)
+        dset.read(fp)
+        #n += 1
+        #if n >= 10:
+            #break
+
+    dset.add_labels(dset.instances)
 
 def read_dataset(file_name):
     """ unpickles dataset """

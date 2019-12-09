@@ -42,7 +42,8 @@ class Approximations:
         """ Integer programming implementation.
             This is the EXACT SOLUTION!!
             Help from: https://pythonhosted.org/PuLP/CaseStudies/a_set_partitioning_problem.html"""
-        #t0 = time.time()
+
+        t0 = time.time()
 
         # subsets need to be tuples for this to work
         subsets = [tuple(s[0]) for s in self.subset_tuples]
@@ -71,15 +72,15 @@ class Approximations:
         cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
                 if x[tuple(self.subset_tuples[i][0])].value() == 1.0]
 
-        #t1 = time.time()
+        t1 = time.time()
         #print("integer program: ",t1-t0)
 
-        return cover, self.cost(cover)
+        return cover, self.cost(cover), t1-t0
 
     def deterministic_rounding(self):
         """ Linear programming with deterministic rounding. """
 
-        #t0 = time.time()
+        t0 = time.time()
 
         subsets = [tuple(s[0]) for s in self.subset_tuples]
 
@@ -116,15 +117,15 @@ class Approximations:
         cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
                 if x[tuple(self.subset_tuples[i][0])].value() >= 1/f]
 
-        #t1 = time.time()
+        t1 = time.time()
         #print("deterministic rounding: ",t1-t0)
 
-        return cover, self.cost(cover)
+        return cover, self.cost(cover), t1-t0
 
     def dual_rounding(self):
         """ Dual linear programming with dual rounding. """
 
-        #t0 = time.time()
+        t0 = time.time()
 
         # create an LP for the dual
         #subsets = [tuple(s[0]) for s in self.subset_tuples]
@@ -148,6 +149,8 @@ class Approximations:
 
         dual_program.solve()
 
+        #print(dual_program)
+
         #for element in y:
             #print(y[element].value())
 
@@ -160,15 +163,15 @@ class Approximations:
                 if sum(y[element] for element in subset[0]).value() == subset[1]:
                     cover.append(subset)
 
-        #t1 = time.time()
-        #print("dual rounding: ",t1-t0)
+        t1 = time.time()
+        #print("dual rounding solver: ",t1-t0)
 
-        return cover, self.cost(cover)
+        return cover, self.cost(cover), t1-t0
 
     def primal_dual(self):
         #check out this example: http://algorithm.cs.nthu.edu.tw/WSPAA07/slides/15.pdf
 
-        #t0 = time.time()
+        t0 = time.time()
 
         y = {}
         for element in self.universe:
@@ -198,12 +201,12 @@ class Approximations:
                     #print("uncovered_elems:",uncovered_elems)
 
 
-        #t1 = time.time()
+        t1 = time.time()
         #print("primal dual: ",t1-t0)
 
         #cover = set(cover)
         #cover = list(cover)
-        return cover, self.cost(cover)
+        return cover, self.cost(cover), t1-t0
 
     def greedy_unweighted(self):
         """this is going to error now, don't use. just here for reference."""
@@ -224,7 +227,7 @@ class Approximations:
     def greedy_weighted(self):
         """My edits of greedy unweighted to make it weighted"""
 
-        #t0 = time.time()
+        t0 = time.time()
 
         #maximum = max(self.weights)+1
         #print([self.subset_tuples[i][1] for i in range(len(self.subset_tuples))])
@@ -248,25 +251,41 @@ class Approximations:
             covered |= min_subset[0]  # this apparently means covered = covered | subset
             #print("covered:", covered)
 
-        #t1 = time.time()
+        t1 = time.time()
         #print("greedy: ",t1-t0)
 
-        return cover, self.cost(cover)
+        return cover, self.cost(cover), t1-t0
 
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
 
-        costs = [self.greedy_weighted()[1],
-                self.deterministic_rounding()[1],
-                self.dual_rounding()[1],
-                self.primal_dual()[1]]   # add more as they are implemented
+        greedy = self.greedy_weighted()
+        deterministic = self.deterministic_rounding()
+        dual = self.dual_rounding()
+        primal_dual = self.primal_dual()
 
-        print()
+        costs = [greedy[1],
+                deterministic[1],
+                dual[1],
+                primal_dual[1]]   # add more as they are implemented
+
+        times = [greedy[2],
+                deterministic[2],
+                dual[2],
+                primal_dual[2]]
+
+        #print()
 
         #labels = ["greedy", "deterministic rounding", "dual rounding"]
         labels = [0, 1, 2, 3]     # scikit-learn doesn't like strings
 
-        index_min = min(range(len(costs)), key=costs.__getitem__)
+        #index_min = min(range(len(costs)), key=costs.__getitem__)
+        min_val = min(costs)
+        #for i in range(len(costs)):
+
+        tie_costs = [times[i] for i in range(len(times)) if costs[i] == min_val]
+
+
         #print("costs:", costs)
 
         # if multiple sets are equal, we currently return the first in the list.
@@ -290,11 +309,18 @@ def main():
 
     # example where IP and LP are different. Results of LP are as expected.
     # (source: http://math.mit.edu/~goemans/18434S06/setcover-tamara.pdf)
-    universe = {1, 2, 3, 4, 5, 6}
+    """universe = {1, 2, 3, 4, 5, 6}
     subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
     weights = [1,1,1,1,1,1,1]          # for this, dual does very badly!
     #weights = [1, 7, 8, 2, 3, 5, 1]
     #weights = [1, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
+    subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]"""
+
+    universe = {1, 2, 3, 4, 5, 6}
+    subsets = [{1,2}, {1,3}, {2,3}, {2,4,6}, {3,5,6}, {4,5,6}, {4,5}]
+    weights = [1,1,1,1,1,1,1,1]          # for this, dual does very badly!
+    #weights = [1, 7, 8, 2, 3, 5, 1]
+    #weights = [5, 7, 8, 9, 1, 4, 3]     # for this arbitrary set of weights, they all return the same SC
     subset_tuples = [(subsets[i], weights[i]) for i in range(len(subsets))]
 
     # example from http://algorithm.cs.nthu.edu.tw/WSPAA07/slides/15.pdf

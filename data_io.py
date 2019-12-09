@@ -60,7 +60,7 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
 
     # Generate the leftover instances with our method
     n = params[0] # n: range of numbers for universe
-    
+
     for i in tqdm(range(num_instances)):
         m = random.choice(params[1])   # m: size of union set
         l = random.choice(params[2])   # l: number of subsets
@@ -99,16 +99,16 @@ def main():
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(100, 200)), list(range(50, 450, 5)), list(range(10, 250))]
+    params = [1000, list(range(100, 1000)), list(range(50, 1000, 5)), list(range(10, 250))]
 
     start = time.time()
-    
+
     generate_dataset(total_instances, start_idx, existing, params)
 
     end = time.time()
     hours, rem = divmod(end-start, 3600)
     minutes, seconds = divmod(rem, 60)
-    
+
     print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
 
 if __name__ == '__main__':

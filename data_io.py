@@ -79,7 +79,7 @@ def main():
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(100, 300)), list(range(50, 1000, 5)), list(range(10, 250))]
+    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), list(range(10, 250))]
 
     start = time.time()
 

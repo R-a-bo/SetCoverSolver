@@ -150,18 +150,39 @@ class Approximations:
         dual_program.solve()
 
         #print(dual_program)
-
         #for element in y:
             #print(y[element].value())
 
-        cover = []
+        #cover = []
+        differences = []
         for subset in self.subset_tuples:
             # i wonder if I could get this directly from the dual program I created?
             #print(subset)
             #print(sum(y[element] for element in subset[0]), subset[1])
             #if subset[0] != set():
-            if sum(y[element] for element in subset[0]).value() == subset[1]:
-                cover.append(subset)
+            #print(sum(y[element] for element in subset[0]).value(), subset[1])
+            difference = abs(subset[1] - sum(y[element] for element in subset[0]).value())
+
+            differences.append((subset, difference))
+            #if sum(y[element] for element in subset[0]).value() == subset[1]:
+                #cover.append(subset)
+
+        #print(differences[:5])
+        differences.sort(key=itemgetter(1))
+        #print(differences[:5])
+
+        covered = set()
+        cover = []
+        # Greedily add the subsets with the most uncovered points
+        i = 0
+        while covered != self.universe:
+            cover.append(differences[i][0])
+            #differences.remove(differences[i])
+            #cover.append(min_subset)
+            #print("subset:",min_subset)
+            covered |= differences[i][0][0]
+            i += 1
+            #print(covered)
 
         t1 = time.time()
         #print("dual rounding solver: ",t1-t0)
@@ -258,6 +279,9 @@ class Approximations:
 
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
+        print(self.valid())
+
+        integer = self.integer_program()
 
         # print("Running greedy weighted...")
         greedy = self.greedy_weighted()
@@ -271,10 +295,51 @@ class Approximations:
         # print("Running primal dual...")
         primal_dual = self.primal_dual()
 
+        covers = [greedy[0],
+                deterministic[0],
+                dual[0],
+                primal_dual[0]]
+
         costs = [greedy[1],
                 deterministic[1],
                 dual[1],
                 primal_dual[1]]   # add more as they are implemented
+        print("costs:",integer[1], costs)
+        print()
+
+        #print("covers:",covers)
+        for cover in covers:
+            elements = set()
+            for subset in cover:
+                for element in subset[0]:
+                    elements.add(element)
+            #print(list(elements)[:10], list(self.universe)[:10])
+            # Check the subsets cover the universe
+            if elements != self.universe:
+                print("cover",covers.index(cover),"didn't return a valid cover!")
+                #print(cover)
+                #print()
+                #print(self.subset_tuples)
+                #print()
+                #print(self.universe)
+                #print()
+                print(self.universe-elements)
+                print()
+                #exit()
+            """if costs[covers.index(cover)] < integer[1]:
+                print("we got a cost less than the ip!!")
+                print(cover)
+                print()
+                print(self.subset_tuples)
+                print()
+                print(self.universe)
+                print()"""
+
+            #print(cover)
+            #print()
+        #print(covers)
+
+
 
         times = [greedy[2],
                 deterministic[2],

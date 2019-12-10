@@ -1,0 +1,4 @@
+# adjacency matrices can be downloaded at: https://www.dropbox.com/s/hn34a8trrpjik1i/data_as_adj.zip?dl=0
+
+python get_node2vec.py /Users/cikeokwu/Desktop/snap-master/examples/node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/graph_2D_CNN/datasets/data_as_adj/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/graph_2D_CNN/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/graph_2D_CNN/datasets/stats/ test_data 1 1
+python get_histograms.py /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/graph_2D_CNN/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/graph_2D_CNN/datasets/tensors/ test_data 1 1 14 5

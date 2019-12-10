@@ -30,7 +30,7 @@ def convert_instances(lower, upper, path):
 def save_data(path, file_name):
     b = np.loadtxt(path + file_name, delimiter=',')
     adj_mat = create_adjacency_matrix(b)
-    np.savetxt("../datasets/data_as_adj/set_cover/set_cover_" + file_name[8:13] + ".txt", adj_mat, fmt="%.2f")
+    np.savetxt("../datasets/data_as_adj/set_cover/set_cover_" + file_name[8:12] + ".txt", adj_mat, fmt="%.2f")
 
 
 # Old test code

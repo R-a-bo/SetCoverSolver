@@ -65,8 +65,10 @@ def get_embeddings_node2vec(g,d,p,q,path_node2vec):
     # write edge list
     with open(tmpdir + '/graph/input.edgelist', 'w') as my_file:
         my_file.write('\n'.join('%s %s' % x for x in my_edgelist))
+
     # execute node2vec
-    call([path_node2vec + 'node2vec -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q],shell=True)
+    call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q], shell=True)
+
     # read back results
     emb = np.loadtxt(tmpdir + '/emb/output.emb',skiprows=1)
     # sort by increasing node index and keep only coordinates
@@ -84,7 +86,8 @@ def to_parallelize(file_name,p,q,dataset,path_read,path_write):
     idx = file_name.split('.txt')[0].split('_')[-1:][0]
     
     adj_mat = np.loadtxt(path_read + dataset + '/' + file_name)
-    g = igraph.Graph.Adjacency(adj_mat.tolist(),mode='UNDIRECTED')
+    g = igraph.Graph.Weighted_Adjacency(adj_mat.tolist(), mode='UNDIRECTED')
+    #g.es["weight"] = 1.0
     if len(g.vs)<(max_n_channels*2): # exclude graphs with less nodes than the required min number of dims
         excluded = file_name
     try:

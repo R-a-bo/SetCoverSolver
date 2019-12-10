@@ -1,1 +1,10 @@
 xXx_set_cover_solver_xXx
+
+python get_node2vec.py /Users/cikeokwu/Desktop/snap-master/examples/node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/data_as_adj/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/stats/ set_cover 1 1
+
+
+python get_histograms.py /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/tensors/ set_cover 1 1 400 5
+
+
+python main.py /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/ set_cover 1 1 400 5
+

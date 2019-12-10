@@ -111,11 +111,11 @@ def main():
 
     print 'converting to 0-based index'
 
-    if 0 not in list(set(ys)):
-        if -1 not in list(set(ys)):
-            ys = [y-1 for y in ys]
-        else:
-            ys = [1 if y==1 else 0 for y in ys]
+    # if 0 not in list(set(ys)):
+    #     if -1 not in list(set(ys)):
+    #         ys = [y-1 for y in ys]
+    #     else:
+    #         ys = [1 if y==1 else 0 for y in ys]
 
     print 'classes:', list(set(ys))  
 

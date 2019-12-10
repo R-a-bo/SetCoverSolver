@@ -1,7 +1,9 @@
+from __future__ import print_function
 from dataset import *
 import networkx as nx
 import numpy as np
 from tqdm import tqdm
+
 
 ''' Approach 1: Elements in matrix
 - Create a dictionary mapping the elements in the union to a list of ordered numbers 
@@ -43,10 +45,12 @@ def element_graph(instance):
     for i in tqdm(range(len(subsets))):
         set1 = subsets[i]
         for number1 in set1:
-            for j in range(i+1, len(subsets)):
+            for j in range(i + 1, len(subsets)):
                 set2 = subsets[j]
                 for number2 in set2:
-                    if number2 in set1 and number1 in set2 and (number1, number2, weights[i] + weights[j]) not in edge_list and (number2, number1, weights[i] + weights[j]) not in edge_list:
+                    if number2 in set1 and number1 in set2 and (
+                            number1, number2, weights[i] + weights[j]) not in edge_list and (
+                            number2, number1, weights[i] + weights[j]) not in edge_list:
                         # print("Number1", number1, "|| Number2", number2)
                         # print("Set1", set1, " || Set2", set2)
                         edge_list.append(
@@ -78,7 +82,7 @@ def subset_graph(instance):
     for i in tqdm(range(len(subsets))):
         set1 = subsets[i]
         for number1 in set1:
-            for j in range(i+1, len(subsets)):
+            for j in range(i + 1, len(subsets)):
                 set2 = subsets[j]
                 for number2 in set2:
                     if len(set(set1 + set2)) != 0 and (i, j, weights[i] + weights[j]) not in edge_list:
@@ -95,6 +99,8 @@ def subset_graph(instance):
 
 
 ''' Takes in a list of nodes and edges, returns the adjacency matrix of a graph'''
+
+
 def to_graph(node_list, edge_list):
     mg = nx.MultiGraph()
 
@@ -112,13 +118,12 @@ def to_graph(node_list, edge_list):
 
 
 def test_main():
-
-    # Generate an instance and test all representations
+    # Generate an instance and test_data all representations
     data = Dataset()
 
     n = 20  # upper bound for range of numbers
     m = 5  # size of set
-    l = 15   # size of list of subsets
+    l = 15  # size of list of subsets
     w = 10
 
     instance1 = data.generate_instance(n, m, l, w)

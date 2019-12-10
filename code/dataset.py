@@ -6,9 +6,8 @@ import sys
 import random
 from approximations import Approximations
 from operator import itemgetter
-from tqdm import tqdm
 import numpy as np
-import set_to_matrix as stm
+from code import set_to_matrix as stm
 
 
 class Instance(object):

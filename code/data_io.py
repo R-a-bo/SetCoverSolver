@@ -47,7 +47,10 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
     for i in tqdm(range(num_instances)):
         m = random.choice(params[1])  # m: size of union set
         l = random.choice(params[2])  # l: number of subsets
-        w = random.choice(params[3])  # w: range of values for weights
+        if params[3] == -1:
+            w = -1
+        else:
+            w = random.choice(params[3])  # w: range of values for weights
 
         # Set up the name for the instance
         name = f"set_cover_{start_idx}.csv"

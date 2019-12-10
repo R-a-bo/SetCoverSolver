@@ -1,5 +1,5 @@
 keras==1.2.2
-tensorflow==1.1.0
+tensorflow==1.12.2
 python-igraph==0.7.1.post6
 scikit-learn==0.18.1
 numpy==1.11.0

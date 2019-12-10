@@ -330,7 +330,7 @@ def main():
                                 nb_epoch=nb_epochs,
                                 validation_data=(x_test, y_test),
                                 callbacks=[early_stopping])
-            
+            model.save_weights("uws_weights" + str(n_repeats))
             # save [min loss,max acc] on test_data set
             max_acc = max(model.history.history['val_acc'])
             max_idx = model.history.history['val_acc'].index(max_acc)

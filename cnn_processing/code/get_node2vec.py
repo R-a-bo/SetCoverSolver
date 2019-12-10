@@ -89,6 +89,7 @@ def to_parallelize(file_name,p,q,dataset,path_read,path_write):
     
     adj_mat = np.loadtxt(path_read + dataset + '/' + file_name)
     g = igraph.Graph.Weighted_Adjacency(adj_mat.tolist(), mode='UNDIRECTED')
+    #g = igraph.Graph.Adjacency(adj_mat.tolist(), mode='UNDIRECTED')
     #g.es["weight"] = 1.0
     if len(g.vs)<(max_n_channels*2): # exclude graphs with less nodes than the required min number of dims
         excluded = file_name

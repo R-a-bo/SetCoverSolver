@@ -4,7 +4,7 @@
    Usage:
    -> python data_io.py [number of instances to generate] [starting index of file names to store] [whether we are using existing datasets or not]
 
-   Example: python data_io.py 500 100 0 
+   Example: python data_io.py 500 100 0
    -> Generate 500 instances, start saving them as Instnance100.csv and don't use existing datasets
    """
 
@@ -50,7 +50,7 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
         w = random.choice(params[3])  # w: range of values for weights
 
         # Set up the name for the instance
-        name = f"Instance{start_idx}.csv"
+        name = f"set_cover_{start_idx}.csv"
         start_idx += 1
 
         # Generates and adds to dset.instances, labels, and stores
@@ -67,7 +67,7 @@ def main():
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), list(range(10, 250))]
+    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), -1]
 
     start = time.time()
 

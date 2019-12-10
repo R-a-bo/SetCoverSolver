@@ -7,7 +7,7 @@ import random
 from approximations import Approximations
 from operator import itemgetter
 import numpy as np
-from code import set_to_matrix as stm
+import set_to_matrix as stm
 
 
 class Instance(object):
@@ -117,12 +117,12 @@ class Dataset:
         if rest:
             subsets += [rest]
 
-            # Put them together and add them to the
-            if w == -1:
-                weights = [1 for s in subsets]
-                print(weights)
-            else:
-                weights = [random.randrange(1, w) for s in subsets]
+        # Put them together and add them to the
+        if w == -1:
+            weights = [1 for s in subsets]
+            print(weights)
+        else:
+            weights = [random.randrange(1, w) for s in subsets]
 
         weighted_subsets = list(zip(subsets, weights))
         weighted_subsets = self.clean_set_cover(weighted_subsets)

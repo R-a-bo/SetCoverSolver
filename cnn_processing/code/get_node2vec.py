@@ -66,7 +66,9 @@ def get_embeddings_node2vec(g,d,p,q,path_node2vec):
     with open(tmpdir + '/graph/input.edgelist', 'w') as my_file:
         my_file.write('\n'.join('%s %s' % x for x in my_edgelist))
 
+    # !
     # execute node2vec
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q], shell=True)
 
     # read back results

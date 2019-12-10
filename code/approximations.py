@@ -279,7 +279,7 @@ class Approximations:
 
     def best(self):
         """runs each approximation algorithm and returns the one that does best"""
-        print(self.valid())
+        #print(self.valid())
 
         integer = self.integer_program()
 

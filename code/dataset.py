@@ -120,7 +120,7 @@ class Dataset:
         # Put them together and add them to the
         if w == -1:
             weights = [1 for s in subsets]
-            print(weights)
+            #print(weights)
         else:
             weights = [random.randrange(1, w) for s in subsets]
 

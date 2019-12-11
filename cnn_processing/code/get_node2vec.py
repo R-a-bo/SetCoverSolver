@@ -3,20 +3,23 @@ import argparse
 import os
 import re
 import igraph
+import networkx as nx
 import numpy as np
 from subprocess import call
 from sklearn.decomposition import PCA
 
 import tempfile
 import shutil
-
 from multiprocessing import Pool, cpu_count
 from functools import partial
 import shelve
 import time as t
 import datetime
 
+
 # =============================================================================
+
+
 
 parser = argparse.ArgumentParser()
 
@@ -57,11 +60,13 @@ def natural_keys(text):
 def get_embeddings_node2vec(g,d,p,q,path_node2vec):
     my_pca = PCA(n_components=d)
     my_edgelist = igraph.Graph.get_edgelist(g)
+    #print my_edgelist
     # create temp dir to write and read from
     tmpdir = tempfile.mkdtemp()
     # create subdirs for node2vec
     os.makedirs(tmpdir + '/graph/')
     os.makedirs(tmpdir + '/emb/')
+
     # write edge list
     with open(tmpdir + '/graph/input.edgelist', 'w') as my_file:
         my_file.write('\n'.join('%s %s' % x for x in my_edgelist))
@@ -69,7 +74,9 @@ def get_embeddings_node2vec(g,d,p,q,path_node2vec):
     # !
     # execute node2vec
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q], shell=True)
+    call(['python' + ' m.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --weighted'], shell=True)
+    #call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q], shell=True)
+
 
     # read back results
     emb = np.loadtxt(tmpdir + '/emb/output.emb',skiprows=1)
@@ -89,6 +96,7 @@ def to_parallelize(file_name,p,q,dataset,path_read,path_write):
     
     adj_mat = np.loadtxt(path_read + dataset + '/' + file_name)
     g = igraph.Graph.Weighted_Adjacency(adj_mat.tolist(), mode='UNDIRECTED')
+    #g2 = nx.Graph.adjacency()
     #g = igraph.Graph.Adjacency(adj_mat.tolist(), mode='UNDIRECTED')
     #g.es["weight"] = 1.0
     if len(g.vs)<(max_n_channels*2): # exclude graphs with less nodes than the required min number of dims

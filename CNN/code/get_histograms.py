@@ -63,7 +63,7 @@ def to_parallelize(my_file_name,dataset,n_dim,my_min,my_max,my_def,path_read,pat
 
     np.save(path_write_dataset + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx, my_hist, allow_pickle=False)
     if int(real_idx) % 1000 == 0:
-        print 'done', my_hist.shape
+        print('done', my_hist.shape)
 
 # =============================================================================
 
@@ -73,15 +73,15 @@ def main():
     n_dim = 2*max_n_channels
     
     all_file_names  = os.listdir(path_to_node2vec + dataset + '/') 
-    print '===== total number of files in folder: =====', len(all_file_names)
+    print('===== total number of files in folder: =====', len(all_file_names))
 
     file_names_filtered = [elt for elt in all_file_names if dataset in elt and 'p=' + p in elt and 'q=' + q in elt]
     file_names_filtered.sort(key=natural_keys)
-    print '===== number of files after filtering: =====', len(file_names_filtered)
-    print '*** head ***'
-    print file_names_filtered[:5]
-    print '*** tail ***'
-    print file_names_filtered[-5:]
+    print('===== number of files after filtering: =====', len(file_names_filtered))
+    print('*** head ***')
+    print(file_names_filtered[:5])
+    print('*** tail ***')
+    print(file_names_filtered[-5:])
     
     # load tensors
     tensors = []
@@ -89,26 +89,26 @@ def main():
         tensor = np.load(path_to_node2vec + dataset + '/' + name)
         tensors.append(tensor[:,:n_dim])
         if idx % round(len(file_names_filtered)/10) == 0:
-            print idx
+            print(idx)
     
-    print 'tensors loaded'
+    print('tensors loaded')
     
     full = np.concatenate(tensors)
     my_max = np.amax(full)
     my_min = np.amin(full)
-    print 'range:', my_max, my_min
+    print('range:', my_max, my_min)
     
     to_parallelize_partial = partial(to_parallelize, dataset=dataset, n_dim=n_dim, my_min=my_min, my_max=my_max, my_def=definition, path_read=path_to_node2vec + dataset + '/',path_write=path_to_hist)
     
     n_jobs = 2*cpu_count()
 
-    print 'creating', n_jobs, 'jobs'
+    print('creating', n_jobs, 'jobs')
     
     pool = Pool(processes=n_jobs)
     pool.map(to_parallelize_partial, file_names_filtered)
     pool.close()
 
-    print 'done in ', round(t.time() - t_start,4)
+    print('done in ', round(t.time() - t_start,4))
 
 if __name__ == "__main__":
     main()

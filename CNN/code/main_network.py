@@ -95,12 +95,12 @@ def main():
     with open(name_save + '_parameters.json', 'w') as my_file:
         json.dump(parameters, my_file, sort_keys=True, indent=4)
 
-    print '========== parameters defined and saved to disk =========='
+    print('========== parameters defined and saved to disk ==========')
 
     regexp_p = re.compile('p=' + p)
     regexp_q = re.compile('q=' + q)
 
-    print '========== loading labels =========='
+    print('========== loading labels ==========')
 
     with open(path_root + 'classes/' + dataset + '/' + dataset + '_classes.txt', 'r') as f:
         ys = f.read().splitlines()
@@ -108,9 +108,9 @@ def main():
 
     num_classes = len(list(set(ys)))
 
-    print 'classes:', list(set(ys))
+    print('classes:', list(set(ys)))
 
-    print 'converting to 0-based index'
+    print('converting to 0-based index')
 
     # if 0 not in list(set(ys)):
     #     if -1 not in list(set(ys)):
@@ -118,31 +118,31 @@ def main():
     #     else:
     #         ys = [1 if y==1 else 0 for y in ys]
 
-    print 'classes:', list(set(ys))  
+    print('classes:', list(set(ys))  )
 
-    print '========== loading tensors =========='
+    print('========== loading tensors ==========')
 
     path_read = path_root + 'tensors/' + dataset + '/node2vec_hist/'
     file_names = [elt for elt in os.listdir(path_read) if (str(definition)+':1' in elt and regexp_p.search(elt) and regexp_q.search(elt) and elt.count('p=')==1 and elt.count('q=')==1 and elt.split('_')[-1:][0][0].isdigit())] # make sure the right files are selected
     file_names.sort(key=natural_keys)
-    print len(file_names)
-    print file_names[:5]
-    print file_names[-5:]
+    print(len(file_names))
+    print(file_names[:5])
+    print(file_names[-5:])
 
-    print 'ensuring tensor-label matching'
+    print('ensuring tensor-label matching')
     kept_idxs = [int(elt.split('_')[-1].split('.')[0]) for elt in file_names]
-    print len(kept_idxs)
-    print kept_idxs[:5]
-    print kept_idxs[-5:]
-    print 'removing', len(ys) - len(kept_idxs), 'labels'
+    print(len(kept_idxs))
+    print(kept_idxs[:5])
+    print(kept_idxs[-5:])
+    print('removing', len(ys) - len(kept_idxs), 'labels')
     ys = [y for idx,y in enumerate(ys) if idx in kept_idxs]
 
-    print len(file_names) == len(ys)
+    print(len(file_names) == len(ys))
 
-    print 'converting labels to array'
+    print('converting labels to array')
     ys = np.array(ys)
 
-    print 'transforming integer labels into one-hot vectors'
+    print('transforming integer labels into one-hot vectors')
     ys = np_utils.to_categorical(ys, num_classes)
 
     tensors = []
@@ -153,26 +153,27 @@ def main():
     tensors = np.array(tensors)
     tensors = tensors.astype('float32')
 
-    print 'tensors shape:', tensors.shape
+    print('tensors shape:', tensors.shape)
 
-    print '========== getting image dimensions =========='
+    print('========== getting image dimensions ==========')
 
     img_rows, img_cols = int(tensors.shape[2]), int(tensors.shape[3])
     input_shape = (int(tensors.shape[1]), img_rows, img_cols)   
 
-    print 'input shape:', input_shape 
+    print('input shape:', input_shape )
 
-    print '========== shuffling data =========='
+    print('========== shuffling data ==========')
 
     shuffled_idxs = random.sample(range(tensors.shape[0]), int(tensors.shape[0])) # sample w/o replct
     tensors = tensors[shuffled_idxs]
     ys = ys[shuffled_idxs]
       
-    print '========== conducting', n_folds ,'fold cross validation =========='; print 'repeating each fold:', n_repeats, 'times'
+    print('========== conducting', n_folds ,'fold cross validation ==========')
+    print('repeating each fold:', n_repeats, 'times')
 
     folds = np.array_split(tensors,n_folds,axis=0)
 
-    print 'fold sizes:', [len(fold) for fold in folds]
+    print('fold sizes:', [len(fold) for fold in folds])
 
     folds_labels = np.array_split(ys,n_folds,axis=0)
 
@@ -191,7 +192,7 @@ def main():
         
         for repeating in range(n_repeats):
             
-            print 'clearing Keras session'
+            print('clearing Keras session')
             K.clear_session()
             
             my_input = Input(shape=input_shape, dtype='float32')
@@ -319,7 +320,7 @@ def main():
                           optimizer=my_optimizer,
                           metrics=['accuracy'])
             
-            print 'model compiled'
+            print('model compiled')
             
             early_stopping = EarlyStopping(monitor='val_acc', # go through epochs as long as acc on validation set increases
                                            patience=my_patience,
@@ -342,13 +343,13 @@ def main():
             # also save full history for sanity checking
             histories.append(model.history.history)
         
-        print '**** fold', i+1 ,'done in ' + str(math.ceil(time.time() - t)) + ' second(s) ****'
+        print('**** fold', i+1 ,'done in ' + str(math.ceil(time.time() - t)) + ' second(s) ****')
 
     # save results to disk
     with open(name_save + '_results.json', 'w') as my_file:
         json.dump({'outputs':outputs,'histories':histories}, my_file, sort_keys=False, indent=4)
 
-    print '========== results saved to disk =========='
+    print('========== results saved to disk ==========')
 
 if __name__ == "__main__":
     main()

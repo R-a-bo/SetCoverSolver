@@ -137,7 +137,7 @@ def main():
     with open(name_save + '_parameters.json', 'w') as my_file:
         json.dump(parameters, my_file, sort_keys=True, indent=4)
 
-    print '========== parameters defined and saved to disk =========='
+    print('========== parameters defined and saved to disk ==========')
 
     regexp_p = re.compile('p=' + p)
     regexp_q = re.compile('q=' + q)
@@ -146,7 +146,7 @@ def main():
     smoothed_bootstrap_partial = partial(smoothed_bootstrap, params=params) # for parallelization
     n_jobs = cpu_count()
 
-    print '========== loading labels =========='
+    print('========== loading labels ==========')
 
     with open(path_root + 'classes/' + dataset + '/' + dataset + '_classes.txt', 'r') as f:
         ys = f.read().splitlines()
@@ -154,9 +154,9 @@ def main():
 
     num_classes = len(list(set(ys)))
 
-    print 'classes:', list(set(ys))
+    print('classes:', list(set(ys)))
 
-    print 'converting to 0-based index'
+    print('converting to 0-based index')
 
     if 0 not in list(set(ys)):
         if -1 not in list(set(ys)):
@@ -164,21 +164,21 @@ def main():
         else:
             ys = [1 if y==1 else 0 for y in ys]
 
-    print 'classes:', list(set(ys))  
+    print('classes:', list(set(ys)) )
 
-    print '========== loading node2vec embeddings =========='
+    print('========== loading node2vec embeddings ==========')
     
     all_file_names  = os.listdir(path_root + '/raw_node2vec/' + dataset + '/') 
-    print '===== total number of files in folder: =====', len(all_file_names)
+    print('===== total number of files in folder: =====', len(all_file_names))
     
     file_names_filtered = [elt for elt in all_file_names if (dataset in elt and regexp_p.search(elt) and regexp_q.search(elt) and elt.count('p=')==1 and elt.count('q=')==1 and elt.split('_')[-1:][0][0].isdigit())]
     file_names_filtered.sort(key=natural_keys)
     
-    print 'number of files after filtering:', len(file_names_filtered)
-    print '*** head ***'
-    print file_names_filtered[:5]
-    print '*** tail ***'
-    print file_names_filtered[-5:]
+    print('number of files after filtering:', len(file_names_filtered))
+    print('*** head ***')
+    print(file_names_filtered[:5])
+    print('*** tail ***')
+    print(file_names_filtered[-5:])
     
     # load tensors
     raw_emb = []
@@ -190,40 +190,41 @@ def main():
         else:
             raw_emb.append(emb[:,:n_dim])
         if idx % round(len(file_names_filtered)/10) == 0:
-            print idx
+            print(idx)
     
-    print 'node2vec embeddings loaded'
+    print('node2vec embeddings loaded')
     
-    print 'ensuring tensor-label matching 1st attempt'
-    print 'removing', len(excluded_idxs), 'labels'
+    print('ensuring tensor-label matching 1st attempt')
+    print('removing', len(excluded_idxs), 'labels')
     ys = [y for idx,y in enumerate(ys) if idx not in excluded_idxs]
-    print len(raw_emb) == len(ys)
+    print(len(raw_emb) == len(ys))
     
-    print 'ensuring tensor-label matching 2nd attempt'
+    print('ensuring tensor-label matching 2nd attempt')
     kept_idxs = [int(elt.split('_')[-1].split('.')[0]) for elt in file_names_filtered]
-    print 'removing', len(ys) - len(kept_idxs), 'labels'
+    print('removing', len(ys) - len(kept_idxs), 'labels')
     ys = [y for idx,y in enumerate(ys) if idx in kept_idxs]
-    print len(file_names_filtered) == len(ys)
+    print(len(file_names_filtered) == len(ys))
 
     full = np.concatenate(raw_emb)
     my_max = np.amax(full)
     my_min = np.amin(full)
-    print 'range:', my_max, my_min
+    print('range:', my_max, my_min)
     
     img_dim = int(np.arange(my_min, my_max+0.05,(my_max+0.05-my_min)/float(definition*(my_max+0.05-my_min))).shape[0]-1)
-    print 'img_dim:', img_dim
+    print('img_dim:', img_dim)
     
-    print '========== shuffling data =========='
+    print('========== shuffling data ==========')
 
     shuffled_idxs = random.sample(range(len(ys)), int(len(ys))) # sample w/o replct
     raw_emb = [raw_emb[idxx] for idxx in shuffled_idxs]
     ys = [ys[idxx] for idxx in shuffled_idxs]
       
-    print '========== conducting', n_folds ,'fold cross validation =========='; print 'repeating each fold:', n_repeats, 'times'
+    print('========== conducting', n_folds ,'fold cross validation ==========')
+    print('repeating each fold:', n_repeats, 'times')
 
     folds = np.array_split(raw_emb,n_folds,axis=0)
 
-    print 'fold sizes:', [len(fold) for fold in folds]
+    print('fold sizes:', [len(fold) for fold in folds])
 
     folds_labels = np.array_split(ys,n_folds,axis=0)
 
@@ -243,19 +244,19 @@ def main():
         y_train = [elt for sublist in y_train for elt in sublist] # flatten
         y_test = [y for j,y in enumerate(folds_labels) if j==i][0]          
         
-        print '*** resampling training set ***'
-        print '* generating one bootstrapped sample for every', inverse_n_b ,'training obs *'
+        print('*** resampling training set ***')
+        print('* generating one bootstrapped sample for every', inverse_n_b ,'training obs *')
         
         idx_for_boot = random.sample(range(len(raw_emb_train)), int(round(n_bootstrap*len(raw_emb_train))))
             
-        print 'creating', n_jobs, 'jobs'
+        print('creating', n_jobs, 'jobs')
         tt = time.time()
         
         pool = Pool(processes=n_jobs)
         new_raw_emb_train = pool.map(smoothed_bootstrap_partial, [elt for idx,elt in enumerate(raw_emb_train) if idx in idx_for_boot])
         pool.close()
 
-        print len(idx_for_boot), 'bootstrap samples created in ', round(time.time() - tt,4)
+        print(len(idx_for_boot), 'bootstrap samples created in ', round(time.time() - tt,4))
             
         new_y_train = [elt for idx,elt in enumerate(y_train) if idx in idx_for_boot]
         
@@ -263,49 +264,49 @@ def main():
         new_raw_emb_train = new_raw_emb_train + raw_emb_train
         new_y_train = new_y_train + y_train
 
-        print 'shuffling data and labels'
+        print('shuffling data and labels')
         shuffled_idxs = random.sample(range(len(new_raw_emb_train)), int(len(new_raw_emb_train))) # sample w/o replct
         new_raw_emb_train = [new_raw_emb_train[elt] for elt in shuffled_idxs]
         new_y_train = [new_y_train[elt] for elt in shuffled_idxs]
         
-        print 'computing histograms on the training set'
+        print('computing histograms on the training set')
         tensors_train = []
         for idx, my_new_emb in enumerate(new_raw_emb_train):
             tensors_train.append(get_hist_node2vec(emb=my_new_emb,d=n_dim,my_min=my_min,my_max=my_max,definition=definition)[:n_channels,:,:])
             if idx % round(len(new_raw_emb_train)/float(10)) == 0:
-                print idx
+                print(idx)
         
-        print 'computing histograms on the test_data set'
+        print('computing histograms on the test_data set')
         tensors_test = []
         for my_emb in raw_emb_test:
             tensors_test.append(get_hist_node2vec(emb=my_emb,d=n_dim,my_min=my_min,my_max=my_max,definition=definition)[:n_channels,:,:])
 
-        print 'converting labels to array'
+        print('converting labels to array')
         new_y_train = np.array(new_y_train)
         y_test = np.array(y_test)
 
-        print 'transforming integer labels into one-hot vectors'
+        print('transforming integer labels into one-hot vectors')
         new_y_train = np_utils.to_categorical(new_y_train, num_classes)
         y_test = np_utils.to_categorical(y_test, num_classes)
         
-        print 'transforming tensors into numpy arrays'
+        print('transforming tensors into numpy arrays')
         tensors_train = np.array(tensors_train)
         tensors_train = tensors_train.astype('float32')
         
         tensors_test = np.array(tensors_test)
         tensors_test = tensors_test.astype('float32')
 
-        print 'tensors training shape:', tensors_train.shape
-        print 'tensors test_data shape:', tensors_test.shape
+        print('tensors training shape:', tensors_train.shape)
+        print('tensors test_data shape:', tensors_test.shape)
 
         # input image dimensions
         img_rows, img_cols = int(tensors_train.shape[2]), int(tensors_train.shape[3])
-        input_shape = (int(tensors_train.shape[1]), img_rows, img_cols)    
-        print 'input shape:', input_shape 
+        input_shape = (int(tensors_train.shape[1]), img_rows, img_cols)
+        print('input shape:', input_shape)
             
         for repeating in range(n_repeats):
             
-            print 'clearing Keras session'
+            print('clearing Keras session')
             K.clear_session()
             
             my_input = Input(shape=input_shape, dtype='float32')
@@ -433,7 +434,7 @@ def main():
                           optimizer=my_optimizer,
                           metrics=['accuracy'])
             
-            print 'model compiled'
+            print('model compiled')
             
             early_stopping = EarlyStopping(monitor='val_acc', # go through epochs as long as acc on validation set increases
                                            patience=my_patience,
@@ -455,13 +456,13 @@ def main():
             # also save full history for sanity checking
             histories.append(model.history.history)
         
-        print '**** fold', i+1 ,'done in ' + str(math.ceil(time.time() - t)) + ' second(s) ****'
+        print('**** fold', i+1 ,'done in ' + str(math.ceil(time.time() - t)) + ' second(s) ****')
 
     # save results to disk
     with open(name_save + '_results.json', 'w') as my_file:
         json.dump({'outputs':outputs,'histories':histories}, my_file, sort_keys=False, indent=4)
 
-    print '========== results saved to disk =========='
+    print('========== results saved to disk ==========')
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,6 @@ import argparse
 
 import os
 import re
-import igraph
 import networkx as nx
 import numpy as np
 from subprocess import call
@@ -64,7 +63,7 @@ def get_embeddings_node2vec(g, d, p, q, path_node2vec):
     my_pca = PCA(n_components=d)
     #my_edgelist = igraph.Graph.get_edgelist(g)
     my_edgelist = list(nx.generate_edgelist(g,data=["weight"]))
-    # print my_edgelist
+    # print( my_edgelist
     # create temp dir to write and read from
     tmpdir = tempfile.mkdtemp()
     # create subdirs for node2vec
@@ -78,7 +77,7 @@ def get_embeddings_node2vec(g, d, p, q, path_node2vec):
     # !
     # execute node2vec
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    #print tmpdir + '/emb/output.emb'
+    #print( tmpdir + '/emb/output.emb'
     call(['python' + ' m.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --weighted'],shell=True)
     #call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q + ' -w'], shell=True)
 
@@ -111,8 +110,8 @@ def to_parallelize(file_name, p, q, dataset, path_read, path_write):
         emb = get_embeddings_node2vec(g, d=max(20, max_n_channels * 2), p=p, q=q, path_node2vec=path_node2vec)
         np.save(path_write + dataset + '/' + dataset + '_node2vec_raw_p=' + p + '_q=' + q + '_' + idx, emb,
                 allow_pickle=False)
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
         excluded_exc = file_name
 
     return [len(g), g.number_of_edges(), excluded, excluded_exc]
@@ -125,11 +124,11 @@ def main():
 
     file_names = os.listdir(path_read + dataset + '/')
     file_names.sort(key=natural_keys)
-    print '===== number of graphs: =====', len(file_names)
-    print '*** head ***'
-    print file_names[:5]
-    print '*** tail ***'
-    print file_names[-5:]
+    print( '===== number of graphs: =====', len(file_names))
+    print( '*** head ***')
+    print( file_names[:5])
+    print( '*** tail ***')
+    print( file_names[-5:])
 
     # map 'to_parallelize' over all files
     to_parallelize_partial = partial(to_parallelize, p=p, q=q, dataset=dataset, path_read=path_read,
@@ -137,24 +136,24 @@ def main():
 
     n_jobs = cpu_count()
 
-    print 'using', n_jobs, 'cores'
+    print( 'using', n_jobs, 'cores')
     t_start = t.time()
 
     pool = Pool(processes=n_jobs)
     lol = pool.map(to_parallelize_partial, file_names)
     pool.close()
 
-    print 'type', type(lol)
-    print 'len', len(lol)
-    print 'len lol[0]', len(lol[0])
-    print lol[0]
+    print('type', type(lol))
+    print('len', len(lol))
+    print('len lol[0]', len(lol[0]))
+    print(lol[0])
 
     stats_array = np.array(lol)
-    print 'shape', stats_array.shape
+    print('shape', stats_array.shape)
 
     np.savetxt(path_stats + dataset + '/' + dataset + '_' + my_date_time + '.txt', stats_array, fmt='%s')
 
-    print 'done in ', round(t.time() - t_start, 4)
+    print( 'done in ', round(t.time() - t_start, 4))
 
 
 if __name__ == "__main__":

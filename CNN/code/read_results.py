@@ -13,12 +13,12 @@ for name in results_names:
         tmp = json.load(my_file)
     vals = [elt[1] for elt in tmp['outputs']] # 'outputs' contains loss, accuracy for each repeat of each fold 
     vals = [val*100 for val in vals]
-    print '=======',name,'======='
-    print 'mean:', round(np.mean(vals),my_prec)
-    print 'median:', round(np.median(vals),my_prec)
-    print 'max:', round(max(vals),my_prec)
-    print 'min:', round(min(vals),my_prec)
-    print 'stdev', round(np.std(vals),my_prec)
+    print('=======',name,'=======')
+    print('mean:', round(np.mean(vals),my_prec))
+    print('median:', round(np.median(vals),my_prec))
+    print('max:', round(max(vals),my_prec))
+    print('min:', round(min(vals),my_prec))
+    print('stdev', round(np.std(vals),my_prec))
 
     
 

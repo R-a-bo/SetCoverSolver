@@ -69,7 +69,7 @@ class Graph():
 				unnormalized_probs.append(G[dst][dst_nbr].get('weight', 1))
 			else:
 				unnormalized_probs.append(G[dst][dst_nbr].get('weight', 1)/q)
-		#print unnormalized_probs
+		print unnormalized_probs
 		norm_const = sum(unnormalized_probs)
 		normalized_probs =  [float(u_prob)/norm_const for u_prob in unnormalized_probs]
 

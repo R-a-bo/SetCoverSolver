@@ -6,9 +6,11 @@ Rabo Birch, Daniel Firebanks, Emily Hamlin, Christian Ikeokwu
 
 ## Code
 
-All code is in the `SetCoverSolver/code/` folder.
+All code is in the `SetCoverSolver/code/` and `SetCoverSolver/cnn_processing/code/` folders.
 
-### approximations.py
+### SetCoverSolver/code/
+
+#### approximations.py
 
 `approximations.py` contains an Approximations class with an exact solution as well as four approximation methods.
 
@@ -19,9 +21,15 @@ All code is in the `SetCoverSolver/code/` folder.
   * `greedy_weighted()` approximates by choosing subsets greedily by minimum ratio of weight to number of uncovered elements it contains
   * `best()` finds the overall cost of each approximation and outputs a list of costs as well as the label of the approximation alg that produced the lowest cost
 
-### data_io.py
+#### data_io.py
 
-### dataset.py
+Reads in (or generates) specified datasets, then outputs them to csv files to be later read into `neural_net.py`. Run using:
+
+```python data_io.py [number of instances to generate] [starting index of file names to store] [whether we are using existing datasets or not (1 or 0)]```
+
+We will eventually make this more command-line friendly so that we don't have to go into the code to change parameters.
+
+#### dataset.py
 
 `dataset.py` handles reading in and generating data and turning them into instances. It contains an Instance class that stores each set cover instance in set and graph representations, as well as other information such as label. `dataset.py` also contains a Dataset class with several methods:
 
@@ -39,9 +47,9 @@ All code is in the `SetCoverSolver/code/` folder.
   * `weighted_preprocess(fname)` reads in files from the scp (?) dataset and converts them to set cover instances
   * `read(f_name)` reads in a file and applies the correct preprocessing to it (nonweighted or weighted)
 
-### neural_net.py
+#### set_to_matrix.py
 
-### set_to_matrix.py
+### SetCoverSolver/cnn_processing/code/
 
 ## Other
 

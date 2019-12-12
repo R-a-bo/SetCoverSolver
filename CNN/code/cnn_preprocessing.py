@@ -1,7 +1,14 @@
+''' Usage: 
+	python cnn_preprocessing [lower_index] [upper_index] [files_path] 
+
+	Ex: python cnn_preprocessing 0 1001 ~/SetCoverSolver/DataSetCover0-1000/ '''
+
 from __future__ import print_function
 import numpy as np
 import pandas as pd
-import node2vec as n2v
+import re
+import sys
+
 B = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
 
 
@@ -22,18 +29,34 @@ def create_adjacency_matrix(B):
     return adjacency_matrix
 
 
-def convert_instances(lower, upper, path):
+# lower = lower bound for instances file numbers (inclusive)
+# upper = upper bound for instance file numbers (exclusive)
+# path = path to instances instance file numbers (including final '/')
+# read_file_prefix = the prefix of the files you're reading from
+# example, if files are numbered Instance_0 through Instance_1000, I would do:
+#   convert_instances(0, 1001, '~/PycharmProjects/SetCoverSolver/DataSetCover0-1000/', 'Instance_')
+def convert_instances(lower, upper, path, read_file_prefix):
     for i in range(lower, upper):
-        save_data(path, "Instance" + str(i) + ".csv")
+        save_data(path, read_file_prefix + str(i) + ".csv")
 
 
-def save_data(path, file_name):
-    b = np.loadtxt(path + file_name, delimiter=',')
+# you shouldn't call this - instead call convert_instances()
+# path = same as above
+# save_file_name = name for prefix of save file
+# read_file_prefix = same as above
+def save_data(path, save_file_name, read_file_prefix):
+    b = np.loadtxt(path + save_file_name, delimiter=',')
     adj_mat = create_adjacency_matrix(b)
-    np.savetxt("../datasets/data_as_adj/set_cover/set_cover_" + file_name[8:12] + ".txt", adj_mat, fmt="%.2f")
+    idx = re.search(read_file_prefix + '(.*)\\.csv', save_file_name).group(1)
+    np.savetxt("../datasets/data_as_adj/set_cover/set_cover_" + str(idx) + ".txt", adj_mat, fmt="%.2f")
+
+def main():
+	lower = sys.argv[1]
+	upper = sys.argv[2]
+	path = sys.argv[3]
+	convert_instances(lower, upper, path, prefix="set_cover_")
 
 
-# Old test code
-# adj = create_adjacency_matrix(B)
-# for i in range(100):
-#     np.savetxt("../datasets/data_as_adj/test_data/test_data_" + str(i) + ".txt", adj, fmt="%.2f")
+if __name__ == '__main__':
+	main()
+

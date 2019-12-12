@@ -11,7 +11,7 @@ The set cover problem can be solved with a variety of approximation algorithms. 
 
 ## Code
 
-All code is in the `SetCoverSolver/code/` and `SetCoverSolver/cnn_processing/code/` folders.
+Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` folders.
 
 ### SetCoverSolver/code/
 
@@ -54,7 +54,13 @@ We will eventually make this more command-line friendly so that we don't have to
 
 #### set_to_matrix.py
 
-### SetCoverSolver/cnn_processing/code/
+### SetCoverSolver/CNN/code/
+
+### Instructions
+
+#### 1. To generate/read data
+#### 2. To preprocess for CNN
+#### 3. To run CNN
 
 ## Other
 

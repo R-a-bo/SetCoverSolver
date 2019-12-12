@@ -13,8 +13,9 @@ from keras.layers import Dense, Dropout, Flatten, Input, Convolution2D, MaxPooli
 from keras.utils import np_utils
 from keras.models import Model
 from keras import backend as K
+from keras.models import load_model
 
-from keras.callbacks import EarlyStopping
+from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 # =============================================================================
 
@@ -33,7 +34,7 @@ parser.add_argument('--n_folds', type=int, default=10, choices=[2,3,4,5,6,7,8,9,
 parser.add_argument('--n_repeats', type=int, default=3, choices=[1,2,3,4,5], help='number of times each fold should be repeated')
 parser.add_argument('--batch_size', type=int, default=32, choices=[32,64,128], help='batch size')
 parser.add_argument('--nb_epochs', type=int, default=50, help='maximum number of epochs')
-parser.add_argument('--patience', type=int, default=5, help='patience for early stopping strategy')
+parser.add_argument('--patience', type=int, default=10, help='patience for early stopping strategy')
 parser.add_argument('--drop_rate', type=float, default=0.3, help='dropout rate')
 
 args = parser.parse_args()
@@ -322,15 +323,16 @@ def main():
             
             early_stopping = EarlyStopping(monitor='val_acc', # go through epochs as long as acc on validation set increases
                                            patience=my_patience,
-                                           mode='max') 
-            
+                                           mode='max')
+            mc = ModelCheckpoint('best_model.h5', monitor='val_loss', mode='min', save_best_only=True)
+            #model.load_weights('uws_weights3.h5')
             history = model.fit(x_train,
                                 y_train,
                                 batch_size=batch_size,
                                 nb_epoch=nb_epochs,
                                 validation_data=(x_test, y_test),
                                 callbacks=[early_stopping])
-            model.save_weights("uws_weights" + str(n_repeats))
+            model.save("uws_weights" + str(repeating) + ".h5")
             # save [min loss,max acc] on test_data set
             max_acc = max(model.history.history['val_acc'])
             max_idx = model.history.history['val_acc'].index(max_acc)
@@ -350,3 +352,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

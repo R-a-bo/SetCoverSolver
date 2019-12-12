@@ -78,10 +78,9 @@ def get_embeddings_node2vec(g, d, p, q, path_node2vec):
     # !
     # execute node2vec
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    call([
-             'python' + ' m.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --weighted'],
-         shell=True)
-    # call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q], shell=True)
+    #print tmpdir + '/emb/output.emb'
+    call(['python' + ' m.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --weighted'],shell=True)
+    #call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q + ' -w'], shell=True)
 
     # read back results
     emb = np.loadtxt(tmpdir + '/emb/output.emb', skiprows=1)

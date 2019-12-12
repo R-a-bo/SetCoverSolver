@@ -6,6 +6,8 @@
 
    Example: python data_io.py 500 100 0
    -> Generate 500 instances, start saving them as Instnance100.csv and don't use existing datasets
+
+   ##########
    """
 
 from dataset import *

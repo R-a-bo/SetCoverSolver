@@ -4,6 +4,11 @@ Rabo Birch, Daniel Firebanks, Emily Hamlin, Christian Ikeokwu
 
 ## Project Description
 
+The set cover problem can be solved with a variety of approximation algorithms. However, these approximation algorithms will have a different performance depending on the instance of set cover, so there is no one-size-fits-all approximation method. Depending on the type of problem being solved, certain algorithms can lead to better accuracy or faster runtimes. We want to address this problem by building a machine learning model that is able to take any instance of set cover and choose the best algorithm for it. Inspired by the Newman et al. paper on Spectrum Repacking, this project is an optimizer that: 
+
+  * solves a classification problem given a graph instance and an approximation algorithm as a label
+  * applies the identified algorithm and outputs the minimum sized set that contains all the elements in the universe
+
 ## Code
 
 All code is in the `SetCoverSolver/code/` and `SetCoverSolver/cnn_processing/code/` folders.

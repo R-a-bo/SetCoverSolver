@@ -27,15 +27,19 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 ` python data_io.py 1000 0 0 `
 
-- Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the number of instances generated
+- Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the number of instances generated. This folder can be placed anywhere, as long as it is properly referenced in Step 2
 
 #### 2. To preprocess for CNN
 
-` cd CNN `
+` cd CNN/code `
 
 - To create adjacency matrices and store them in ` ../datasets/data_as_adj/set_cover/ `
 
-` python cnn_preoprocessing.py 0 1000 DataSetCover_0-1000 `
+` python cnn_preoprocessing.py 0 1000 DataSetCover_0-1000/ `
+
+Make sure to give the proper path of the DataSetCover folder, including final '/'. For example, if the folder was located in Data, write
+
+` python cnn_preoprocessing.py 0 1000 ../../Data/DataSetCover_0-1000/`
 
 - To create node embeddings and store them in ` ../datasets/raw_node2vec/ `
 

@@ -130,7 +130,8 @@ def main():
     my_date_time = '_'.join(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S").split())
 
     file_names = os.listdir(path_read + dataset + '/')
-    file_names.remove(".DS_Store")
+    if ".DS_Store" in file_names:
+        file_names.remove(".DS_Store")
 
     file_names.sort(key=natural_keys)
     print( '===== Number of graphs: =====', len(file_names))

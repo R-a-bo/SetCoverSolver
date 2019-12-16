@@ -75,6 +75,8 @@ def main():
     n_dim = 2*max_n_channels
     
     all_file_names = os.listdir(path_to_node2vec + dataset + '/')
+    if ".DS_Store" in all_file_names:
+        all_file_names.remove(".DS_Store")
     all_file_names.remove(".DS_Store")
     # print(".DS_Store" in all_file_names)
     print('===== total number of files in folder: =====', len(all_file_names))

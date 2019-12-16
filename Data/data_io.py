@@ -5,7 +5,7 @@
    -> python data_io.py [number of instances to generate] [starting index of file names to store] [whether we are using existing datasets or not]
 
    Example: python data_io.py 500 100 0
-   -> Generate 500 instances, start saving them as Instnance100.csv and don't use existing datasets
+   -> Generate 500 instances, start saving them as set_cover_100.csv and don't use existing datasets
 
    ##########
    """

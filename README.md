@@ -17,7 +17,7 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 #### 1. To generate/read data
 
-` python Data/data_io.py 1000 100 0 `
+` python data_io.py 1000 100 0 `
 
 - Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the number of instances generated
 

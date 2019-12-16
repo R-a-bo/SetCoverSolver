@@ -304,8 +304,8 @@ class Approximations:
                 deterministic[1],
                 dual[1],
                 primal_dual[1]]   # add more as they are implemented
-        print("costs:",integer[1], costs)
-        print()
+        # print("costs:",integer[1], costs)
+        # print()
 
         #print("covers:",covers)
         for cover in covers:

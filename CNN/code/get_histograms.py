@@ -46,12 +46,12 @@ def get_hist_node2vec(emb,d,my_min,my_max,definition):
     my_bins = np.linspace(my_min,my_max,img_dim) #  to have middle bin centered on zero
     Hs = []
     for i in range(0,d,2):
-        H, xedges, yedges = np.histogram2d(x=emb[:,i],y=emb[:,i+1],bins=my_bins, normed=False)
+        H, xedges, yedges = np.histogram2d(x=emb[:, i],y=emb[:, i+1], bins=my_bins, normed=False)
         Hs.append(H)
     Hs = np.array(Hs)    
-    return  Hs
+    return Hs
 
-def to_parallelize(my_file_name,dataset,n_dim,my_min,my_max,my_def,path_read,path_write):
+def to_parallelize(my_file_name, dataset, n_dim, my_min, my_max, my_def, path_read, path_write):
     path_write_dataset = path_write + dataset + '/node2vec_hist/'
     
     p_value = [elt for elt in my_file_name.split('_') if elt.startswith('p=')][0]
@@ -61,18 +61,22 @@ def to_parallelize(my_file_name,dataset,n_dim,my_min,my_max,my_def,path_read,pat
     emb = emb[:,:n_dim]
     my_hist = get_hist_node2vec(emb=emb,d=n_dim,my_min=my_min,my_max=my_max,definition=my_def) 
 
-    np.save(path_write_dataset + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx, my_hist, allow_pickle=False)
+    np.save(path_write_dataset + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx,
+            my_hist, allow_pickle=False)
+
     if int(real_idx) % 1000 == 0:
-        print('done', my_hist.shape)
+        print('Done', my_hist.shape)
 
 # =============================================================================
 
 def main():
-    t_start = t.time()
+    start = t.time()
     
     n_dim = 2*max_n_channels
     
-    all_file_names  = os.listdir(path_to_node2vec + dataset + '/') 
+    all_file_names = os.listdir(path_to_node2vec + dataset + '/')
+    all_file_names.remove(".DS_Store")
+    # print(".DS_Store" in all_file_names)
     print('===== total number of files in folder: =====', len(all_file_names))
 
     file_names_filtered = [elt for elt in all_file_names if dataset in elt and 'p=' + p in elt and 'q=' + q in elt]
@@ -88,27 +92,34 @@ def main():
     for idx, name in enumerate(file_names_filtered):
         tensor = np.load(path_to_node2vec + dataset + '/' + name)
         tensors.append(tensor[:,:n_dim])
-        if idx % round(len(file_names_filtered)/10) == 0:
-            print(idx)
+        # if idx % round(len(file_names_filtered)/10) == 0:
+        #     print(idx)
     
-    print('tensors loaded')
+    print('Tensors loaded')
     
     full = np.concatenate(tensors)
     my_max = np.amax(full)
     my_min = np.amin(full)
-    print('range:', my_max, my_min)
+    print('Range:', my_max, my_min)
     
-    to_parallelize_partial = partial(to_parallelize, dataset=dataset, n_dim=n_dim, my_min=my_min, my_max=my_max, my_def=definition, path_read=path_to_node2vec + dataset + '/',path_write=path_to_hist)
+    to_parallelize_partial = partial(to_parallelize, dataset=dataset, n_dim=n_dim, my_min=my_min, my_max=my_max,
+                                     my_def=definition, path_read=path_to_node2vec + dataset + '/',
+                                     path_write=path_to_hist)
     
     n_jobs = 2*cpu_count()
 
-    print('creating', n_jobs, 'jobs')
+    print('Creating', n_jobs, 'jobs')
     
     pool = Pool(processes=n_jobs)
     pool.map(to_parallelize_partial, file_names_filtered)
     pool.close()
 
-    print('done in ', round(t.time() - t_start,4))
+    end = t.time()
+    hours, rem = divmod(end - start, 3600)
+    minutes, seconds = divmod(rem, 60)
+
+    print("Done in: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+
 
 if __name__ == "__main__":
     main()

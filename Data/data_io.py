@@ -11,10 +11,12 @@
    """
 
 from dataset import *
+import pandas as pd
 from tqdm import tqdm
 import sys
 import os
 import time
+import random
 
 
 def generate_dataset(num_instances, start_idx, from_existing, params):
@@ -62,6 +64,16 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
         _ = dset.generate_instance(n, m, l, w, name)
 
 
+def store_labels():
+    """ Store labels from csv file to txt file for CNN purposes """
+    prefix = "./"
+    file = prefix + "labels.csv"
+    csv = pd.read_csv(file, header=None)
+
+    with open("../CNN/datasets/classes/set_cover/set_cover_classes.txt", "w") as writer:
+        for label in csv[1]:
+            writer.write(str(label) + "\n")
+
 def main():
     total_instances = int(sys.argv[1])
     start_idx = int(sys.argv[2])
@@ -72,11 +84,12 @@ def main():
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), -1]
+    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), list(range(10, 250))]
 
     start = time.time()
 
     generate_dataset(total_instances, start_idx, existing, params)
+    store_labels()
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)

@@ -13,6 +13,35 @@ The set cover problem can be solved with a variety of approximation algorithms. 
 
 Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` folders.
 
+### Instructions
+
+#### 1. To generate/read data
+
+` python Data/data_io.py 1000 100 0 `
+
+- Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the number of instances generated
+
+#### 2. To preprocess for CNN
+
+- To create adjacency matrices and store them in ` ../datasets/data_as_adj/set_cover/ `
+
+` python cnn_preoprocessing.py 0 1000 DataSetCover_0-1000 `
+
+- To create node embeddings and store them in ` ../datasets/raw_node2vec/ `
+
+` python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover 1 1 `
+
+- To create histograms and store them in ` ../datasets/tensors/ `
+
+` python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover 1 1 400 5 `
+
+
+#### 3. To run CNN
+
+` python main_network.py ../datasets/ set_cover 1 1 400 5 `
+
+----------------------------------------------------------------
+
 ### SetCoverSolver/code/
 
 #### approximations.py
@@ -56,19 +85,7 @@ We will eventually make this more command-line friendly so that we don't have to
 
 ### SetCoverSolver/CNN/code/
 
-### Instructions
-
-#### 1. To generate/read data
-#### 2. To preprocess for CNN
-#### 3. To run CNN
-
-## Other
-
-python get_node2vec.py /Users/cikeokwu/Desktop/snap-master/examples/node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/data_as_adj/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/stats/ set_cover 1 1
+__TODO: Change PCA parameters!! Play around with max_channels and other stuff__
 
 
-python get_histograms.py /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/raw_node2vec/ /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/tensors/ set_cover 1 1 400 5
-
-
-python main.py /Users/cikeokwu/Desktop/Courses/ML/SetCoverSolver/cnn_processing/datasets/ set_cover 1 1 400 5
 

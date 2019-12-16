@@ -37,7 +37,7 @@ def create_adjacency_matrix(B):
 #   convert_instances(0, 1001, '~/PycharmProjects/SetCoverSolver/DataSetCover0-1000/', 'Instance_')
 def convert_instances(lower, upper, path, read_file_prefix):
     for i in range(lower, upper):
-        save_data(path, read_file_prefix + str(i) + ".csv")
+        save_data(path, read_file_prefix + str(i) + ".csv", read_file_prefix)
 
 
 # you shouldn't call this - instead call convert_instances()
@@ -50,13 +50,13 @@ def save_data(path, save_file_name, read_file_prefix):
     idx = re.search(read_file_prefix + '(.*)\\.csv', save_file_name).group(1)
     np.savetxt("../datasets/data_as_adj/set_cover/set_cover_" + str(idx) + ".txt", adj_mat, fmt="%.2f")
 
+
 def main():
-	lower = sys.argv[1]
-	upper = sys.argv[2]
-	path = sys.argv[3]
-	convert_instances(lower, upper, path, prefix="set_cover_")
+    lower = int(sys.argv[1])
+    upper = int(sys.argv[2])
+    path = sys.argv[3]
+    convert_instances(lower, upper, path, "set_cover_")
 
 
 if __name__ == '__main__':
-	main()
-
+    main()

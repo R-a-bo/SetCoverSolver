@@ -117,7 +117,7 @@ class Dataset:
         if rest:
             subsets += [rest]
 
-        # Put them together and add them to the
+        # Generate weights
         if w == -1:
             weights = [1 for s in subsets]
             #print(weights)
@@ -286,7 +286,7 @@ def main():
     l = 5  # size of list of subsets
     w = 10
 
-    generated_instance = dset.generate_instance(n, m, l, w, )
+    generated_instance = dset.generate_instance(n, m, l, w, "lalala")
     print()
     print("=================================")
     print("Generated union:")

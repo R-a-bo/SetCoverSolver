@@ -18,11 +18,13 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 #### 0. To generate the folder structure (do this once if you haven't already)
 
 ` cd CNN `
+
 ` python create_folders.py `
 
 #### 1. To generate/read data
 
 ` cd Data `
+
 ` python data_io.py 1000 100 0 `
 
 - Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the number of instances generated

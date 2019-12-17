@@ -30,7 +30,7 @@ parser.add_argument('p', type=str, help='p parameter of node2vec')
 parser.add_argument('q', type=str, help='q parameter of node2vec')
 
 # optional arguments
-parser.add_argument('--max_n_channels', type=int, default=5,
+parser.add_argument('--max_n_channels', type=int, default=10,
                     help='maximum number of channels that we will be able to pass to the network')
 
 args = parser.parse_args()

@@ -26,7 +26,8 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
     beginning_idx = start_idx
 
     if from_existing in [1, 2]:
-        path = "/Users/dafirebanks/MachineLearningHWs/DatsetsFolder/existing_data"
+
+        path = input("Enter file path for existing data: ") # "./existing_data/"
 
         # from here: https://www.bogotobogo.com/python/python_traversing_directory_tree_recursively_os_walk.php
         file_paths = []
@@ -86,7 +87,7 @@ def main():
     # Params[2] = Range of upper bounds for number of subsets
     # Params[3] = Range of upper bounds for weights
 
-    params = [1000, list(range(50, 100)), list(range(50, 400, 5)), list(range(10, 250))]
+    params = [6666, list(range(100, 400)), list(range(100, 400)), list(range(69, 420))]
 
     start = time.time()
 

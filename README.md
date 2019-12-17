@@ -27,7 +27,8 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 - Run this command, where the first argument is the number of instances to generate, the second argument is the starting index of the file and the third one whether we want to use generated instances, existing, or both.
 - __IMPORTANT NOTE 1:__ You should try to keep track of the starting indices you use and the number of instances you generate so there is no overlap. So if you start at index 0 and generate 100 instances (0-99), the next starting index for generation should be 100.
-- __IMPORTANT NOTE 2:__ This script also creates a file called set_cover_classes.txt in the `CNN/datasets/classes/set_cover/` folder
+- __IMPORTANT NOTE 2:__ This script also creates a file called set_cover_classes.txt in the `CNN/datasets/classes/set_cover/` folder. Make sure to take it out if you don't want to override it!
+- __IMPORTANT NOTE 3:__ If you will use our datasets, we have created `set_cover_classes_[range of files].txt`files for all of them, which you can find in the folder `CNN/datasets/classes/stored_set_cover`. Just change the file name to `set_cover_classes.txt` depending on the dataset you want to test it on, and move it to `CNN/datasets/classes/set_cover/`.
 
 ` python data_io.py 1000 0 0 `
 

@@ -16,6 +16,7 @@ class Instance(object):
         self.name = name
         self.union = list(union)
         self.subsets = subsets
+        self.label = None
 
         # Separate access to subsets and weights, indices are the same in both lists
         self.sets = [tup[0] for tup in subsets]
@@ -24,6 +25,9 @@ class Instance(object):
         # Indicates whether the instance is weighted or not
         self.is_weighted = weighted
         self.costs = []
+
+        # Is it a valid set cover?
+        self.is_valid = None
 
         # Matrix representation of things
         self.element_matrix = None
@@ -54,8 +58,10 @@ class Instance(object):
             costs, label = approx.best()
             self.label = label
             self.costs = costs
+            self.is_valid = True
 
         else:
+            self.is_valid = False
             print("Not Valid")
 
 
@@ -134,7 +140,10 @@ class Dataset:
         # Create matrix representation for the instance, then add label, then store it
         instance.create_matrix()
         instance.add_label()
-        instance.store()
+
+        # Only store if it's a valid setcover
+        if instance.is_valid:
+            instance.store()
 
         return instance
 

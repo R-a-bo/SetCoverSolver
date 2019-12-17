@@ -2,7 +2,8 @@
    Reads and writes instances of data to file storage
 
    Usage:
-   -> python data_io.py [number of instances to generate] [starting index of file names to store] [whether we are using existing datasets or not]
+   -> python data_io.py [number of instances to generate] [starting index of file names to store] \
+   [whether we are using existing datasets or not --> 0 for no, 1 for only existing, 2 for both]
 
    Example: python data_io.py 500 100 0
    -> Generate 500 instances, start saving them as set_cover_100.csv and don't use existing datasets
@@ -22,8 +23,10 @@ import random
 def generate_dataset(num_instances, start_idx, from_existing, params):
     dset = Dataset()
 
-    if from_existing:
-        path = "./data"
+    beginning_idx = start_idx
+
+    if from_existing in [1, 2]:
+        path = "/Users/dafirebanks/MachineLearningHWs/DatsetsFolder/existing_data"
 
         # from here: https://www.bogotobogo.com/python/python_traversing_directory_tree_recursively_os_walk.php
         file_paths = []
@@ -43,31 +46,30 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
 
         num_instances -= len(file_paths)
 
-    print("------------ Generating random instances ------------")
+    if from_existing in [0, 2]:
+        print("------------ Generating random instances ------------")
 
-    # Generate the leftover instances with our method
-    n = params[0]  # n: range of numbers for universe
+        # Generate the leftover instances with our method
+        n = params[0]  # n: range of numbers for universe
+        for i in tqdm(range(num_instances)):
+            m = random.choice(params[1])  # m: size of union set
+            l = random.choice(params[2])  # l: number of subsets
+            if params[3] == -1:
+                w = -1
+            else:
+                w = random.choice(params[3])  # w: range of values for weights
 
-    for i in tqdm(range(num_instances)):
-        m = random.choice(params[1])  # m: size of union set
-        l = random.choice(params[2])  # l: number of subsets
-        if params[3] == -1:
-            w = -1
-        else:
-            w = random.choice(params[3])  # w: range of values for weights
+            # Set up the name for the instance
+            name = f"set_cover_{start_idx}.csv"
+            start_idx += 1
 
-        # Set up the name for the instance
-        name = f"set_cover_{start_idx}.csv"
-        start_idx += 1
-
-        # Generates and adds to dset.instances, labels, and stores
-        _ = dset.generate_instance(n, m, l, w, name)
-
+            # Generates and adds to dset.instances, labels, and stores
+            _ = dset.generate_instance(n, m, l, w, name)
 
 def store_labels():
     """ Store labels from csv file to txt file for CNN purposes """
     prefix = "./"
-    file = prefix + "labels.csv"
+    file = prefix + f"labels.csv"
     csv = pd.read_csv(file, header=None)
 
     with open("../CNN/datasets/classes/set_cover/set_cover_classes.txt", "w") as writer:

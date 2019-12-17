@@ -38,44 +38,44 @@ class Approximations:
             cover_cost += subset_tuple[1] #self.weights[self.subsets.index(subset)]
         return cover_cost
 
-    def integer_program(self):
-        """ Integer programming implementation.
-            This is the EXACT SOLUTION!!
-            Help from: https://pythonhosted.org/PuLP/CaseStudies/a_set_partitioning_problem.html"""
-
-        t0 = time.time()
-
-        # subsets need to be tuples for this to work
-        subsets = [tuple(s[0]) for s in self.subset_tuples]
-        #print(subsets)
-        #print(subsets)
-
-        # create decision variables
-        x = pulp.LpVariable.dicts('s', subsets, lowBound=0, upBound=1, cat='Integer')
-
-        # create the integer program
-        integer_program = pulp.LpProblem("Set_Cover_Integer_Programming", pulp.LpMinimize)
-
-        # add the objective function
-        integer_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
-
-        # add the constraints
-        for element in self.universe:
-            integer_program += sum([x[subset] for subset in subsets if element in subset]) >= 1
-
-        #print(integer_program)
-
-        integer_program.solve()
-
-        # create the cover based on results of IP
-        #cover = [set(subset) for subset in self.subset_tuples if x[self.subset_tuples[0]].value() == 1.0]
-        cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
-                if x[tuple(self.subset_tuples[i][0])].value() == 1.0]
-
-        t1 = time.time()
-        #print("integer program: ",t1-t0)
-
-        return cover, self.cost(cover), t1-t0
+    # def integer_program(self):
+    #     """ Integer programming implementation.
+    #         This is the EXACT SOLUTION!!
+    #         Help from: https://pythonhosted.org/PuLP/CaseStudies/a_set_partitioning_problem.html"""
+    #
+    #     t0 = time.time()
+    #
+    #     # subsets need to be tuples for this to work
+    #     subsets = [tuple(s[0]) for s in self.subset_tuples]
+    #     #print(subsets)
+    #     #print(subsets)
+    #
+    #     # create decision variables
+    #     x = pulp.LpVariable.dicts('s', subsets, lowBound=0, upBound=1, cat='Integer')
+    #
+    #     # create the integer program
+    #     integer_program = pulp.LpProblem("Set_Cover_Integer_Programming", pulp.LpMinimize)
+    #
+    #     # add the objective function
+    #     integer_program += sum([self.subset_tuples[s][1] * x[subsets[s]] for s in range(len(subsets))])
+    #
+    #     # add the constraints
+    #     for element in self.universe:
+    #         integer_program += sum([x[subset] for subset in subsets if element in subset]) >= 1
+    #
+    #     #print(integer_program)
+    #
+    #     integer_program.solve()
+    #
+    #     # create the cover based on results of IP
+    #     #cover = [set(subset) for subset in self.subset_tuples if x[self.subset_tuples[0]].value() == 1.0]
+    #     cover = [self.subset_tuples[i] for i in range(len(self.subset_tuples))
+    #             if x[tuple(self.subset_tuples[i][0])].value() == 1.0]
+    #
+    #     t1 = time.time()
+    #     #print("integer program: ",t1-t0)
+    #
+    #     return cover, self.cost(cover), t1-t0
 
     def deterministic_rounding(self):
         """ Linear programming with deterministic rounding. """
@@ -281,7 +281,7 @@ class Approximations:
         """runs each approximation algorithm and returns the one that does best"""
         #print(self.valid())
 
-        integer = self.integer_program()
+        # integer = self.integer_program()
 
         # print("Running greedy weighted...")
         greedy = self.greedy_weighted()
@@ -411,12 +411,12 @@ def main():
     solns = Approximations(universe, subset_tuples)
     if solns.valid():
         greedy_weighted_cover = solns.greedy_weighted()
-        integer_program_cover = solns.integer_program()
+        # integer_program_cover = solns.integer_program()
         deterministic_rounding_cover = solns.deterministic_rounding()
         dual_rounding_cover = solns.dual_rounding()
         primal_dual_cover = solns.primal_dual()
 
-        print("integer program (exact soln):", integer_program_cover)
+        # print("integer program (exact soln):", integer_program_cover)
         print("greedy algorithm:            ", greedy_weighted_cover)
         print("deterministic LP rounding:   ", deterministic_rounding_cover)
         print("dual rounding:               ", dual_rounding_cover)

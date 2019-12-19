@@ -15,12 +15,6 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 ### Instructions
 
-#### 0. To generate the folder structure (do this once if you haven't already)
-
-` cd CNN `
-
-` python create_folders.py `
-
 #### 1. To generate/read data
 
 ` cd Data `

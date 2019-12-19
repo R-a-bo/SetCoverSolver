@@ -333,7 +333,7 @@ def main():
 
             print('model compiled')
 
-            early_stopping = EarlyStopping(monitor='val_acc',
+            early_stopping = EarlyStopping(monitor='val_accuracy',
                                            # go through epochs as long as acc on validation set increases
                                            patience=my_patience,
                                            mode='max')
@@ -347,8 +347,8 @@ def main():
                                 callbacks=[early_stopping])
             model.save("uws_weights" + str(repeating) + ".h5")
             # save [min loss,max acc] on test_data set
-            max_acc = max(model.history.history['val_acc'])
-            max_idx = model.history.history['val_acc'].index(max_acc)
+            max_acc = max(model.history.history['val_accuracy'])
+            max_idx = model.history.history['val_accuracy'].index(max_acc)
             output = [model.history.history['val_loss'][max_idx], max_acc]
             outputs.append(output)
 

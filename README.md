@@ -40,26 +40,22 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 ` cd CNN/code `
 
-- To create adjacency matrices and store them in ` ../datasets/data_as_adj/set_cover/ `
+- To create adjacency matrices and store them in ` ../datasets/data_as_adj/set_cover_0-499/ `. Make sure to give the proper path of the DataSetCover folder, including final '/'. For example, if the folder was located in Data, write
 
-` python cnn_preoprocessing.py 0 1000 DataSetCover_0-1000/ `
+` python cnn_preprocessing.py 0 499 ../../Data/DataSetCover_0-499/ ../datasets/data_as_adj/ set_cover_0-499`
 
-Make sure to give the proper path of the DataSetCover folder, including final '/'. For example, if the folder was located in Data, write
+- To create node embeddings and store them in ` ../datasets/raw_node2vec/set_cover_0-499/`
 
-` python cnn_preoprocessing.py 0 1000 ../../Data/DataSetCover_0-1000/`
+` python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover_0-499 1 1 `
 
-- To create node embeddings and store them in ` ../datasets/raw_node2vec/ `
+- To create histograms and store them in ` ../datasets/tensors/set_cover_0-499/`
 
-` python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover 1 1 `
-
-- To create histograms and store them in ` ../datasets/tensors/ `
-
-` python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover 1 1 400 5 `
+` python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover_0-499 1 1 14 5 `
 
 
 #### 3. To run CNN
 
-` python main_network.py ../datasets/ set_cover 1 1 400 5 `
+` python main_network.py ../datasets/ set_cover_0-499 1 1 14 5 `
 
 ----------------------------------------------------------------
 

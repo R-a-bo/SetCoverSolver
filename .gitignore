@@ -7,3 +7,4 @@ costs.csv
 Instance*
 __pycache__
 .DS_Store
+CNN/datasets/

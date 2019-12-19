@@ -40,7 +40,7 @@ def atoi(text):
 def natural_keys(text):
     return [atoi(c) for c in re.split('(\d+)', text)]
 
-def get_hist_node2vec(emb,d,my_min,my_max,definition):
+def get_hist_node2vec(emb, d, my_min, my_max, definition):
     # d should be an even integer
     img_dim = int(np.arange(my_min, my_max+0.05,(my_max+0.05-my_min)/float(definition*(my_max+0.05-my_min))).shape[0]-1)
     my_bins = np.linspace(my_min,my_max,img_dim) #  to have middle bin centered on zero
@@ -59,7 +59,7 @@ def to_parallelize(my_file_name, dataset, n_dim, my_min, my_max, my_def, path_re
     real_idx =  my_file_name.split('.npy')[0].split('_')[-1:][0]
     emb = np.load(path_read + my_file_name)
     emb = emb[:,:n_dim]
-    my_hist = get_hist_node2vec(emb=emb,d=n_dim,my_min=my_min,my_max=my_max,definition=my_def) 
+    my_hist = get_hist_node2vec(emb=emb, d=n_dim, my_min=my_min, my_max=my_max, definition=my_def)
 
     np.save(path_write_dataset + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx,
             my_hist, allow_pickle=False)
@@ -77,8 +77,7 @@ def main():
     all_file_names = os.listdir(path_to_node2vec + dataset + '/')
     if ".DS_Store" in all_file_names:
         all_file_names.remove(".DS_Store")
-    all_file_names.remove(".DS_Store")
-    # print(".DS_Store" in all_file_names)
+
     print('===== total number of files in folder: =====', len(all_file_names))
 
     file_names_filtered = [elt for elt in all_file_names if dataset in elt and 'p=' + p in elt and 'q=' + q in elt]
@@ -103,6 +102,10 @@ def main():
     my_max = np.amax(full)
     my_min = np.amin(full)
     print('Range:', my_max, my_min)
+
+    # Create folder if it doesn't exist
+    if not os.path.exists(path_to_hist + dataset + "/"):
+        os.makedirs(path_to_hist + dataset + "/")
     
     to_parallelize_partial = partial(to_parallelize, dataset=dataset, n_dim=n_dim, my_min=my_min, my_max=my_max,
                                      my_def=definition, path_read=path_to_node2vec + dataset + '/',

@@ -3,9 +3,9 @@
 
    Usage:
    -> python data_io.py [number of instances to generate] [starting index of file names to store] \
-   [whether we are using existing datasets or not --> 0 for no, 1 for only existing, 2 for both]
+   [whether we are using existing datasets or not --> 0 for no, 1 for only existing, 2 for both] [dataset name]
 
-   Example: python data_io.py 500 100 0
+   Example: python data_io.py 500 100 0 set_cover_100-499
    -> Generate 500 instances, start saving them as set_cover_100.csv and don't use existing datasets
 
    ##########
@@ -67,13 +67,17 @@ def generate_dataset(num_instances, start_idx, from_existing, params):
             # Generates and adds to dset.instances, labels, and stores
             _ = dset.generate_instance(n, m, l, w, name)
 
-def store_labels():
+def store_labels(dset_name):
     """ Store labels from csv file to txt file for CNN purposes """
     prefix = "./"
     file = prefix + f"labels.csv"
     csv = pd.read_csv(file, header=None)
 
-    with open("../CNN/datasets/classes/set_cover/set_cover_classes.txt", "w") as writer:
+    # Create folder if it doesn't exist
+    if not os.path.exists("../CNN/datasets/classes/" + dset_name):
+        os.makedirs("../CNN/datasets/classes/" + dset_name)
+
+    with open("../CNN/datasets/classes/" + dset_name + "/set_cover_classes.txt", "w") as writer:
         for label in csv[1]:
             writer.write(str(label) + "\n")
 
@@ -81,6 +85,7 @@ def main():
     total_instances = int(sys.argv[1])
     start_idx = int(sys.argv[2])
     existing = int(sys.argv[3])  # 1 if we are reading from existing datasets, 0 if we aren't
+    dset_name = sys.argv[4]
 
     # Params[0] = Range of numbers for universe
     # Params[1] = Range of upper bounds for size of universe
@@ -92,7 +97,7 @@ def main():
     start = time.time()
 
     generate_dataset(total_instances, start_idx, existing, params)
-    store_labels()
+    store_labels(dset_name)
 
     end = time.time()
     hours, rem = divmod(end - start, 3600)

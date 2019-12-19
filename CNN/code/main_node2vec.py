@@ -19,6 +19,7 @@ def parse_args():
     '''
 	Parses the node2vec arguments.
 	'''
+
     parser = argparse.ArgumentParser(description="Run node2vec.")
 
     parser.add_argument('--input', nargs='?', default='graph/karate.edgelist',
@@ -53,6 +54,7 @@ def parse_args():
 
     parser.add_argument('--weighted', dest='weighted', action='store_true',
                         help='Boolean specifying (un)weighted. Default is unweighted.')
+
     parser.add_argument('--unweighted', dest='unweighted', action='store_false')
     parser.set_defaults(weighted=False)
 

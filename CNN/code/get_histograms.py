@@ -52,16 +52,15 @@ def get_hist_node2vec(emb, d, my_min, my_max, definition):
     return Hs
 
 def to_parallelize(my_file_name, dataset, n_dim, my_min, my_max, my_def, path_read, path_write):
-    path_write_dataset = path_write + dataset + '/node2vec_hist/'
-    
+
     p_value = [elt for elt in my_file_name.split('_') if elt.startswith('p=')][0]
     q_value = [elt for elt in my_file_name.split('_') if elt.startswith('q=')][0]
     real_idx =  my_file_name.split('.npy')[0].split('_')[-1:][0]
     emb = np.load(path_read + my_file_name)
     emb = emb[:,:n_dim]
     my_hist = get_hist_node2vec(emb=emb, d=n_dim, my_min=my_min, my_max=my_max, definition=my_def)
-
-    np.save(path_write_dataset + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx,
+ 
+    np.save(path_write + dataset + '_' + str(my_def) + ':1'+ '_' + p_value + '_' + q_value + '_' + real_idx,
             my_hist, allow_pickle=False)
 
     if int(real_idx) % 1000 == 0:
@@ -107,9 +106,13 @@ def main():
     if not os.path.exists(path_to_hist + dataset + "/"):
         os.makedirs(path_to_hist + dataset + "/")
     
+    path_write_dataset = path_to_hist + dataset + '/node2vec_hist/'
+    if not os.path.exists(path_write_dataset):
+        os.makedirs(path_write_dataset)
+
     to_parallelize_partial = partial(to_parallelize, dataset=dataset, n_dim=n_dim, my_min=my_min, my_max=my_max,
                                      my_def=definition, path_read=path_to_node2vec + dataset + '/',
-                                     path_write=path_to_hist)
+                                     path_write=path_write_dataset)
     
     n_jobs = 2*cpu_count()
 

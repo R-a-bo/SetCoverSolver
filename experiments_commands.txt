@@ -1,0 +1,31 @@
+Dataset: 500-999
+Dimensions: 1024
+
+python cnn_preprocessing.py 500 999 ../../../DataSetCover_500-999/ ../datasets/data_as_adj/ set_cover_500-999_dims=1024
+
+python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover_500-999_dims=1024 1 1 --dims 1024
+
+python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover_500-999_dims=1024 1 1 14 5
+
+python main_network.py ../datasets/ set_cover_500-999 1 1 14 5
+
+
+Dataset: 500-999
+Dimensions: 128
+python cnn_preprocessing.py 500 999 ../../../DataSetCover_500-999/ ../datasets/data_as_adj/ set_cover_500-999_dims=128
+
+python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover_500-999_dims=128 1 1 --dims 128
+
+python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover_500-999_dims=128 1 1 14 5
+
+python main_network.py ../datasets/ set_cover_500-999_dims=128 1 1 14 5
+
+Dataset: 1600-2000
+Dimensions: 1024
+python cnn_preprocessing.py 1600 2000 ../../../DataSetCover_1600-2000/ ../datasets/data_as_adj/ set_cover_1600-2000
+
+python get_node2vec.py ../datasets/data_as_adj/ ../datasets/raw_node2vec/ ../datasets/stats/ set_cover_1600-2000 1 1 
+
+python get_histograms.py ../datasets/raw_node2vec/ ../datasets/tensors/ set_cover_1600-2000 1 1 14 5
+
+python main_network.py ../datasets/ set_cover_1600-2000 1 1 14 5

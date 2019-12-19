@@ -29,6 +29,8 @@ parser.add_argument('p', type=str, help='p parameter of node2vec')
 parser.add_argument('q', type=str, help='q parameter of node2vec')
 
 # optional arguments
+parser.add_argument('--dims', type=int, default=1024,  
+                        help='Number of dimensions. Default is 1024.') # ORIGINAL = 128
 parser.add_argument('--max_n_channels', type=int, default=5,
                     help='maximum number of channels that we will be able to pass to the network')
 
@@ -40,6 +42,7 @@ path_read = args.path_read
 path_write = args.path_write
 path_stats = args.path_stats
 dataset = args.dataset
+dims = args.dims
 p = args.p
 q = args.q
 max_n_channels = args.max_n_channels
@@ -52,7 +55,7 @@ def atoi(text):
 def natural_keys(text):
     return [atoi(c) for c in re.split('(\d+)', text)]
 
-def get_embeddings_node2vec(g, d, p, q):
+def get_embeddings_node2vec(g, d, p, q, dimensions):
     my_pca = PCA(n_components=d)
 
     my_edgelist = list(nx.generate_edgelist(g, data=["weight"]))
@@ -70,7 +73,7 @@ def get_embeddings_node2vec(g, d, p, q):
 
     # execute node2vec
     #print( tmpdir + '/emb/output.emb'
-    call(['python' + ' main_node2vec.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --weighted'], shell=True)
+    call(['python' + ' main_node2vec.py  --input ' + tmpdir + '/graph/input.edgelist' + ' --output ' + tmpdir + '/emb/output.emb' + ' --p ' + p + ' --q ' + q + ' --dimensions ' + str(dimensions) + ' --weighted'], shell=True)
     #call([path_node2vec + 'node2vec  -i:' + tmpdir + '/graph/input.edgelist' + ' -o:' + tmpdir + '/emb/output.emb' + ' -p:' + p + ' -q:' + q + ' -w'], shell=True)
 
     # read back results
@@ -87,7 +90,7 @@ def get_embeddings_node2vec(g, d, p, q):
 
     return pca_output
 
-def to_parallelize(file_name, p, q, dataset, path_read, path_write):
+def to_parallelize(file_name, p, q, dataset, path_read, path_write, dimensions):
     excluded = ''
     excluded_exc = ''
 
@@ -100,7 +103,7 @@ def to_parallelize(file_name, p, q, dataset, path_read, path_write):
     if len(g) < (max_n_channels * 2):  # exclude graphs with less nodes than the required min number of dims
         excluded = file_name
     try:
-        emb = get_embeddings_node2vec(g, d=max(20, max_n_channels * 2), p=p, q=q)  # Original d = max(20, max_n_channels*2)
+        emb = get_embeddings_node2vec(g, d=max(20, max_n_channels * 2), p=p, q=q, dimensions=dimensions)  # Original d = max(20, max_n_channels*2)
         np.save(path_write + dataset + '/' + dataset + '_node2vec_raw_p=' + p + '_q=' + q + '_' + idx, emb,
                 allow_pickle=False)
     except Exception as e:
@@ -134,7 +137,7 @@ def main():
 
     # map 'to_parallelize' over all files
     to_parallelize_partial = partial(to_parallelize, p=p, q=q, dataset=dataset, path_read=path_read,
-                                     path_write=path_write)
+                                     path_write=path_write, dimensions=dims)
 
     n_jobs = cpu_count()
 
@@ -147,7 +150,7 @@ def main():
 
     stats_array = np.array(lol)
 
-    np.savetxt(path_stats + dataset + '/' + dataset + '_' + my_date_time + '.txt', stats_array, fmt='%s')
+    np.savetxt(path_stats + '/' + dataset + '_' + my_date_time + '.txt', stats_array, fmt='%s')
 
     end = t.time()
     hours, rem = divmod(end - start, 3600)

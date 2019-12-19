@@ -100,6 +100,9 @@ def main():
                   }
 
     name_save = path_root + 'results/' + dataset + '_augmentation_' + my_date_time
+    
+    if not os.path.exists(path_root + 'results/' + dataset):
+        os.makedirs(path_root + 'results/' + dataset)
 
     with open(name_save + '_parameters.json', 'w') as my_file:
         json.dump(parameters, my_file, sort_keys=True, indent=4)

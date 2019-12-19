@@ -23,17 +23,14 @@ Data code in `SetCoverSolver/Data/` and CNN code in `SetCoverSolver/CNN/code/` f
 
 #### 1. To generate/read data
 
-- __IMPORTANT NOTE 1:__ If you will use our datasets instead of generating new ones, we have created `set_cover_classes_[range of files].txt`files for all of them, which you can find in the folder `CNN/datasets/classes/stored_set_cover`. Just change the file name to `set_cover_classes.txt` depending on the dataset you want to test it on, and move it to `CNN/datasets/classes/set_cover/`.
-
 ` cd Data `
 
-- Run this command, where the first argument is the number of instances to generate, the second argument is the starting index of the file and the third one whether we want to use generated instances, existing, or both.
-- __IMPORTANT NOTE 2:__ You should try to keep track of the starting indices you use and the number of instances you generate so there is no overlap. So if you start at index 0 and generate 100 instances (0-99), the next starting index for generation should be 100.
-- __IMPORTANT NOTE 3:__ This script also creates a file called set_cover_classes.txt in the `CNN/datasets/classes/set_cover/` folder. Make sure to take it out after one run if you don't want to override it!
+- Run this command, where the first argument is the number of instances to generate, the second argument is the starting index of the file, the third one whether we want to use generated instances, existing, or both, and the final argument is the dataset name.
+- __IMPORTANT NOTE:__ You should try to keep track of the starting indices you use and the number of instances you generate so there is no overlap. So if you start at index 0 and generate 100 instances (0-99), the next starting index for generation should be 100.
 
-` python data_io.py 1000 0 0 `
+` python data_io.py 500 0 0 set_cover_0-499`
 
-- Afterwards, move data to a folder called DataSetCover_0-1000, where the range depends on the indices of the number of instances generated. This folder can be placed anywhere, as long as it is properly referenced in Step 2.
+- Afterwards, move data to a folder called DataSetCover_0-499, where the range depends on the indices of the number of instances generated. This folder can be placed anywhere, as long as it is properly referenced in Step 2.
  
 
 #### 2. To preprocess for CNN

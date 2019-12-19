@@ -5,10 +5,10 @@
    -> python data_io.py [number of instances to generate] [starting index of file names to store] \
    [whether we are using existing datasets or not --> 0 for no, 1 for only existing, 2 for both] [dataset name]
 
-   Example: python data_io.py 500 100 0 set_cover_100-499
-   -> Generate 500 instances, start saving them as set_cover_100.csv and don't use existing datasets
+   Example: python data_io.py 500 0 0 set_cover_0-499
+   -> Generate 500 instances, start saving them as set_cover_0.csv, don't use existing datasets and store a .txt file
+   with the labels in the folder ../CNN/datasets/classes/set_cover_0-499
 
-   ##########
    """
 
 from dataset import *

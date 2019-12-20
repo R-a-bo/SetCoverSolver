@@ -9,11 +9,14 @@ import re
 import datetime
 import time
 
+
 from keras.layers import Dense, Dropout, Flatten, Input, Convolution2D, MaxPooling2D, Concatenate
+from keras.layers import Conv2D
 from keras.utils import np_utils
-from keras.models import Model
+from keras.models import Model, Sequential
 from keras import backend as K
 from keras.models import load_model
+from keras import optimizers
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
@@ -33,6 +36,8 @@ parser.add_argument('definition', type=int,
                     help='definition. E.g., 14 for 14:1. Must correspond to a valid value that matches names of files in tensors/*dataset*/node2vec_hist/ folder')
 parser.add_argument('n_channels', type=int,
                     help='number of channels. Must not exceed half the depth of the tensors in tensors/*dataset*/node2vec_hist/ folder')
+parser.add_argument('start_idx', type=int,
+                    help='Start number of the set cover instances. For example, if we are using data from DataSetCover_1600-2000, the start index is 1600')
 
 # optional arguments
 parser.add_argument('--n_folds', type=int, default=10, choices=[2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -43,6 +48,8 @@ parser.add_argument('--batch_size', type=int, default=32, choices=[32, 64, 128],
 parser.add_argument('--nb_epochs', type=int, default=50, help='maximum number of epochs')
 parser.add_argument('--patience', type=int, default=10, help='patience for early stopping strategy')
 parser.add_argument('--drop_rate', type=float, default=0.3, help='dropout rate')
+parser.add_argument('--learning_rate', type=float, default=0.001, help='learning rate')
+parser.add_argument('--optimizer', type=str, default="Adam", choices=["Adam", "SGD"], help='optimizer: Adam or SGD')
 
 args = parser.parse_args()
 
@@ -53,6 +60,7 @@ p = args.p
 q = args.q
 definition = args.definition
 n_channels = args.n_channels
+start_idx = args.start_idx
 
 n_folds = args.n_folds
 n_repeats = args.n_repeats
@@ -60,9 +68,11 @@ batch_size = args.batch_size
 nb_epochs = args.nb_epochs
 my_patience = args.patience
 drop_rate = args.drop_rate
+learning_rate = args.learning_rate
+my_optimizer = args.optimizer
 
 dim_ordering = 'th'  # channels first
-my_optimizer = 'adam'
+
 
 
 # command line examples: python main.py /home/antoine/Desktop/graph_2D_CNN/datasets/ imdb_action_romance 1 1 14 5
@@ -96,7 +106,8 @@ def main():
                   'my_patience': my_patience,
                   'drop_rate': drop_rate,
                   'dim_ordering': dim_ordering,
-                  'my_optimizer': my_optimizer
+                  'my_optimizer': my_optimizer,
+                  'learning_rate': str(learning_rate),
                   }
 
     name_save = path_root + 'results/' + dataset + '_augmentation_' + my_date_time
@@ -150,9 +161,11 @@ def main():
     print(kept_idxs[:5])
     print(kept_idxs[-5:])
     print('removing', len(ys) - len(kept_idxs), 'labels')
-    ys = [y for idx, y in enumerate(ys) if idx in kept_idxs]
+    print(ys[:100])
+    print(kept_idxs[:100])
+    ys = [y for idx, y in enumerate(ys) if idx+start_idx in kept_idxs]
 
-    print(len(file_names) == len(ys))
+    print("Lengths of files and labels match?", len(file_names) == len(ys))
 
     print('converting labels to array')
     ys = np.array(ys)
@@ -209,105 +222,164 @@ def main():
             print('clearing Keras session')
             K.clear_session()
 
+            # model = Sequential()
+
             my_input = Input(shape=input_shape, dtype='float32')
 
-            conv_1 = Convolution2D(64,
-                                   3,
-                                   3,
-                                   border_mode='valid',
-                                   activation='relu',
-                                   dim_ordering=dim_ordering
-                                   )(my_input)
+            # conv_1 = Convolution2D(64,
+            #                        3,
+            #                        3,
+            #                        border_mode='valid',
+            #                        activation='relu',
+            #                        dim_ordering=dim_ordering
+            #                        )(my_input)
+            conv_1 = Conv2D(64, (3, 3), activation="relu", padding="valid", data_format="channels_first")(my_input)
+            # model.add(Conv2D(64, (3, 3), activation="relu", padding="valid", data_format="channels_first",
+            #                input_shape=input_shape))
 
-            pooled_conv_1 = MaxPooling2D(pool_size=(2, 2),
-                                         dim_ordering=dim_ordering
-                                         )(conv_1)
+            # pooled_conv_1 = MaxPooling2D(pool_size=(2, 2),
+            #                              dim_ordering=dim_ordering
+            #                              )(conv_1)
+            pooled_conv_1 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_1)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
 
             pooled_conv_1_dropped = Dropout(drop_rate)(pooled_conv_1)
+            # model.add(Dropout(drop_rate))
 
-            conv_11 = Convolution2D(96,
-                                    3,
-                                    3,
-                                    border_mode='valid',
-                                    activation='relu',
-                                    dim_ordering=dim_ordering
-                                    )(pooled_conv_1_dropped)
+            # conv_11 = Convolution2D(96,
+            #                         3,
+            #                         3,
+            #                         border_mode='valid',
+            #                         activation='relu',
+            #                         dim_ordering=dim_ordering
+            #                         )(pooled_conv_1_dropped)
+            conv_11 = Conv2D(96, (3, 3), activation="relu", padding="valid", data_format="channels_first")(pooled_conv_1_dropped)
+            # model.add(Conv2D(96, (3, 3), activation="relu", padding="valid", data_format="channels_first"))
 
-            pooled_conv_11 = MaxPooling2D(pool_size=(2, 2),
-                                          dim_ordering=dim_ordering
-                                          )(conv_11)
+            # pooled_conv_11 = MaxPooling2D(pool_size=(2, 2),
+            #                               dim_ordering=dim_ordering
+            #                               )(conv_11)
+            pooled_conv_11 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_11)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
 
             pooled_conv_11_dropped = Dropout(drop_rate)(pooled_conv_11)
+            # model.add(Dropout(drop_rate))
+
             pooled_conv_11_dropped_flat = Flatten()(pooled_conv_11_dropped)
+            # model.add(Flatten())
 
-            conv_2 = Convolution2D(64,
-                                   4,
-                                   4,
-                                   border_mode='valid',
-                                   activation='relu',
-                                   dim_ordering=dim_ordering
-                                   )(my_input)
+            # conv_2 = Convolution2D(64,
+            #                        4,
+            #                        4,
+            #                        border_mode='valid',
+            #                        activation='relu',
+            #                        dim_ordering=dim_ordering
+            #                        )(my_input)
+            conv_2 = Conv2D(64, (4, 4), activation="relu", padding="valid", data_format="channels_first")(my_input)
+            # model.add(Conv2D(64, (4, 4), activation="relu", padding="valid", data_format="channels_first"))
 
-            pooled_conv_2 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_2)
+            # pooled_conv_2 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_2)
+            pooled_conv_2 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_2)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_2_dropped = Dropout(drop_rate)(pooled_conv_2)
+            # model.add(Dropout(drop_rate))
 
-            conv_22 = Convolution2D(96,
-                                    4,
-                                    4,
-                                    border_mode='valid',
-                                    activation='relu',
-                                    dim_ordering=dim_ordering,
-                                    )(pooled_conv_2_dropped)
+            # conv_22 = Convolution2D(96,
+            #                         4,
+            #                         4,
+            #                         border_mode='valid',
+            #                         activation='relu',
+            #                         dim_ordering=dim_ordering,
+            #                         )(pooled_conv_2_dropped)
 
-            pooled_conv_22 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_22)
+            conv_22 = Conv2D(96, (4, 4), activation="relu", padding="valid", data_format="channels_first")(pooled_conv_2_dropped)
+            # model.add(Conv2D(96, (4, 4), activation="relu", padding="valid", data_format="channels_first"))
+
+            # pooled_conv_22 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_22)
+            pooled_conv_22 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_22)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_22_dropped = Dropout(drop_rate)(pooled_conv_22)
+            # model.add(Dropout(drop_rate))
+
             pooled_conv_22_dropped_flat = Flatten()(pooled_conv_22_dropped)
+            # model.add(Flatten())
 
-            conv_3 = Convolution2D(64,
-                                   5,
-                                   5,
-                                   border_mode='valid',
-                                   activation='relu',
-                                   dim_ordering=dim_ordering
-                                   )(my_input)
+            # conv_3 = Convolution2D(64,
+            #                        5,
+            #                        5,
+            #                        border_mode='valid',
+            #                        activation='relu',
+            #                        dim_ordering=dim_ordering
+            #                        )(my_input)
+            conv_3 = Conv2D(64, (5, 5), activation="relu", padding="valid", data_format="channels_first")(my_input)
+            # model.add(Conv2D(64, (5, 5), activation="relu", padding="valid", data_format="channels_first"))
 
-            pooled_conv_3 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_3)
+            # pooled_conv_3 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_3)
+            pooled_conv_3 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_3)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_3_dropped = Dropout(drop_rate)(pooled_conv_3)
+            # model.add(Dropout(drop_rate))
 
-            conv_33 = Convolution2D(96,
-                                    5,
-                                    5,
-                                    border_mode='valid',
-                                    activation='relu',
-                                    dim_ordering=dim_ordering
-                                    )(pooled_conv_3_dropped)
+            # conv_33 = Convolution2D(96,
+            #                         5,
+            #                         5,
+            #                         border_mode='valid',
+            #                         activation='relu',
+            #                         dim_ordering=dim_ordering
+            #                         )(pooled_conv_3_dropped)
 
-            pooled_conv_33 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_33)
+            conv_33 = Conv2D(96, (5, 5), activation="relu", padding="valid", data_format="channels_first")(pooled_conv_3_dropped)
+            # model.add(Conv2D(96, (5, 5), activation="relu", padding="valid", data_format="channels_first"))
+
+            # pooled_conv_33 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_33)
+            pooled_conv_33 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_33)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_33_dropped = Dropout(drop_rate)(pooled_conv_33)
+            # model.add(Dropout(drop_rate))
+
             pooled_conv_33_dropped_flat = Flatten()(pooled_conv_33_dropped)
+            # model.add(Flatten())
 
-            conv_4 = Convolution2D(64,
-                                   6,
-                                   6,
-                                   border_mode='valid',
-                                   activation='relu',
-                                   dim_ordering=dim_ordering
-                                   )(my_input)
+            # conv_4 = Convolution2D(64,
+            #                        6,
+            #                        6,
+            #                        border_mode='valid',
+            #                        activation='relu',
+            #                        dim_ordering=dim_ordering
+            #                        )(my_input)
+            conv_4 = Conv2D(64, (6, 6), activation="relu", padding="valid", data_format="channels_first")(my_input)
+            # model.add(Conv2D(64, (6, 6), activation="relu", padding="valid", data_format="channels_first"))
 
-            pooled_conv_4 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_4)
+            # pooled_conv_4 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_4)
+            pooled_conv_4 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_4)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_4_dropped = Dropout(drop_rate)(pooled_conv_4)
+            # model.add(Dropout(drop_rate))
 
-            conv_44 = Convolution2D(96,
-                                    6,
-                                    6,
-                                    border_mode='valid',
-                                    activation='relu',
-                                    dim_ordering=dim_ordering
-                                    )(pooled_conv_4_dropped)
+            # conv_44 = Convolution2D(96,
+            #                         6,
+            #                         6,
+            #                         border_mode='valid',
+            #                         activation='relu',
+            #                         dim_ordering=dim_ordering
+            #                         )(pooled_conv_4_dropped)
+            conv_44 = Conv2D(96, (6, 6), activation="relu", padding="valid", data_format="channels_first")(pooled_conv_4_dropped)
+            # model.add(Conv2D(96, (6, 6), activation="relu", padding="valid", data_format="channels_first"))
 
-            pooled_conv_44 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_44)
+            # pooled_conv_44 = MaxPooling2D(pool_size=(2, 2), dim_ordering=dim_ordering)(conv_44)
+            pooled_conv_44 = MaxPooling2D(pool_size=(2, 2), data_format="channels_first")(conv_44)
+            # model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_first"))
+
             pooled_conv_44_dropped = Dropout(drop_rate)(pooled_conv_44)
+            # model.add(Dropout(drop_rate))
+
             pooled_conv_44_dropped_flat = Flatten()(pooled_conv_44_dropped)
+            # model.add(Flatten)
 
             merge = Concatenate()([pooled_conv_11_dropped_flat,
                                    pooled_conv_22_dropped_flat,
@@ -322,16 +394,21 @@ def main():
 
             dense_dropped = Dropout(drop_rate)(dense)
 
-            prob = Dense(output_dim=num_classes,
+            prob = Dense(units=num_classes,
                          activation='softmax'
                          )(dense_dropped)
 
             # instantiate model
             model = Model(my_input, prob)
 
+            if my_optimizer == "Adam":
+                the_optimizer = optimizers.Adam(lr=learning_rate)
+            else:
+                the_optimizer = optimizers.SGD(lr=learning_rate)
+
             # configure model for training
             model.compile(loss='categorical_crossentropy',
-                          optimizer=my_optimizer,
+                          optimizer=the_optimizer,
                           metrics=['accuracy'])
 
             print('model compiled')
@@ -340,6 +417,7 @@ def main():
                                            # go through epochs as long as acc on validation set increases
                                            patience=my_patience,
                                            mode='max')
+
             mc = ModelCheckpoint('best_model.h5', monitor='val_loss', mode='min', save_best_only=True)
             # model.load_weights('uws_weights3.h5')
             history = model.fit(x_train,
@@ -348,6 +426,7 @@ def main():
                                 epochs=nb_epochs,
                                 validation_data=(x_test, y_test),
                                 callbacks=[early_stopping])
+
             model.save("uws_weights" + str(repeating) + ".h5")
             # save [min loss,max acc] on test_data set
             max_acc = max(model.history.history['val_accuracy'])
@@ -362,7 +441,7 @@ def main():
 
     # save results to disk
     with open(name_save + '_results.json', 'w') as my_file:
-        json.dump({'outputs': outputs, 'histories': histories}, my_file, sort_keys=False, indent=4)
+        json.dump({'outputs': str(outputs), 'histories': str(histories)}, my_file, sort_keys=False, indent=4)
 
     print('========== results saved to disk ==========')
 
